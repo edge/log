@@ -1,0 +1,10 @@
+{
+  "name": "@edge/log",
+  "version": "0.1.0",
+  "description": "Logging utility library for the XE blockchain",
+  "license": "GPU",
+  "author": "Edge Network <core@edge.network>",
+  "contributors": [
+    "Aneurin \"Anny\" Barker Snook <aneurin@edge.network>"
+  ]
+}
