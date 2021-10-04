@@ -61,6 +61,10 @@ export class Log {
     this.adaptors.push(adaptor)
   }
 
+  setLogLevel(level: LogLevel): void {
+    this.level = level
+  }
+
   debug(message: string, context?: Record<string, unknown>): void {
     if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, message, this.mergeContexts(context)))
   }
