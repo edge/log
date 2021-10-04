@@ -15,16 +15,18 @@ export declare enum LogLevel {
 export declare class Log {
     readonly name?: string;
     private adaptors;
-    private context?;
+    private context;
     private level;
-    constructor(adaptors: Adaptor[]);
-    constructor(adaptors: Adaptor[], name?: string);
-    constructor(adaptors: Adaptor[], level?: LogLevel);
-    constructor(adaptors: Adaptor[], context?: Record<string, unknown>);
-    constructor(adaptors: Adaptor[], name?: string, level?: LogLevel);
-    constructor(adaptors: Adaptor[], name?: string, context?: Record<string, unknown>);
-    constructor(adaptors: Adaptor[], level?: LogLevel, context?: Record<string, unknown>);
-    constructor(adaptors: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>);
+    constructor(adaptors?: Adaptor[]);
+    constructor(adaptors?: Adaptor[], name?: string);
+    constructor(adaptors?: Adaptor[], level?: LogLevel);
+    constructor(adaptors?: Adaptor[], context?: Record<string, unknown>);
+    constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel);
+    constructor(adaptors?: Adaptor[], name?: string, context?: Record<string, unknown>);
+    constructor(adaptors?: Adaptor[], level?: LogLevel, context?: Record<string, unknown>);
+    constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>);
+    use(adaptor: Adaptor): void;
+    setLogLevel(level: LogLevel): void;
     debug(message: string, context?: Record<string, unknown>): void;
     info(message: string, context?: Record<string, unknown>): void;
     warn(message: string, context?: Record<string, unknown>): void;

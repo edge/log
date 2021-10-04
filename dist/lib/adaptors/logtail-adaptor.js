@@ -14,23 +14,27 @@ exports.__esModule = true;
 exports.LogtailAdaptor = void 0;
 var node_1 = require("@logtail/node");
 var LogtailAdaptor = (function () {
-    function LogtailAdaptor(logtailSourceToken) {
+    function LogtailAdaptor(logtailSourceToken, enableNameInjection) {
+        if (enableNameInjection === void 0) { enableNameInjection = true; }
         this.logtail = new node_1.Logtail(logtailSourceToken);
+        this.enableNameInjection = enableNameInjection;
     }
     LogtailAdaptor.prototype.debug = function (log, message, context) {
-        this.logtail.debug(this.format(message, log.name), this.addNameToContext(log, context));
+        this.logtail.debug(this.format(message, log.name), this.injectNameIntoContext(log, context));
     };
     LogtailAdaptor.prototype.info = function (log, message, context) {
-        this.logtail.info(this.format(message, log.name), this.addNameToContext(log, context));
+        this.logtail.info(this.format(message, log.name), this.injectNameIntoContext(log, context));
     };
     LogtailAdaptor.prototype.warn = function (log, message, context) {
-        this.logtail.warn(this.format(message, log.name), this.addNameToContext(log, context));
+        this.logtail.warn(this.format(message, log.name), this.injectNameIntoContext(log, context));
     };
     LogtailAdaptor.prototype.error = function (log, message, context) {
-        this.logtail.error(this.format(message, log.name), this.addNameToContext(log, context));
+        this.logtail.error(this.format(message, log.name), this.injectNameIntoContext(log, context));
     };
-    LogtailAdaptor.prototype.addNameToContext = function (log, context) {
-        return __assign({ name: log.name }, context);
+    LogtailAdaptor.prototype.injectNameIntoContext = function (log, context) {
+        return this.enableNameInjection
+            ? __assign({ name: log.name }, context)
+            : context;
     };
     LogtailAdaptor.prototype.format = function (message, name) {
         return name ? "[" + name + "] " + message : message;

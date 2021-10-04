@@ -32,8 +32,17 @@ var LogLevel;
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 var Log = (function () {
     function Log(adaptors, name, level, context) {
+        this.adaptors = [];
+        this.context = {};
         this.level = LogLevel.Info;
-        this.adaptors = adaptors;
+        if (Array.isArray(adaptors))
+            this.adaptors = adaptors;
+        if (typeof adaptors === 'string')
+            this.name = adaptors;
+        else if (typeof adaptors === 'number')
+            this.level = adaptors;
+        else if (adaptors && !Array.isArray(adaptors))
+            this.context = adaptors;
         if (typeof name === 'string')
             this.name = name;
         else if (typeof name === 'number')
@@ -47,6 +56,12 @@ var Log = (function () {
         if (context)
             this.context = context;
     }
+    Log.prototype.use = function (adaptor) {
+        this.adaptors.push(adaptor);
+    };
+    Log.prototype.setLogLevel = function (level) {
+        this.level = level;
+    };
     Log.prototype.debug = function (message, context) {
         var _this = this;
         if (this.level === LogLevel.Debug)
