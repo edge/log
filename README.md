@@ -140,7 +140,7 @@ const eventLog = log.extend('event')
 eventLog.info('the name of this log will be readme:event')
 ```
 
-### Context
+### Context
 
 You can pass in context along with your log message. In the case of `StdioAdaptor`, this is stringified and output. For `LogtailAdaptor`, it is passed along to Logtail. How it is utilised in down to the adaptors. You can also attach context to a `Log` instance itself, therefore including it with every message.
 
@@ -197,7 +197,7 @@ const eventLog = log.extend(event)
 eventLog.info('event started')
 ```
 
-#### Merging contexts
+#### Merging contexts
 
 Contexts are automatically merged. This means you can extend a `Log` instance with some context, then add to it within a message, and also extend it with further context.
 
