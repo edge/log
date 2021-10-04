@@ -11,6 +11,7 @@
   "main": "dist/lib/index.js",
   "scripts": {
     "build": "tsc",
+    "publish": "npm run build && npm publish",
     "lint": "eslint --ext .ts src || true",
     "lint:fix": "eslint --fix --ext .ts src"
   },
