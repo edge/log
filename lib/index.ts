@@ -1,63 +1,87 @@
-export * as filter from './filter'
-export * as std from './std'
+// Copyright (C) 2021 Edge Network Technologies Limited
+// Use of this source code is governed by a GNU GPL-style license
+// that can be found in the LICENSE.md file. All rights reserved.
 
-export type Adapter = Record<LogLevel, LogFn>
+/* eslint-disable max-len */
+/* eslint-disable nonblock-statement-body-position */
 
-export type Data = Record<string, unknown> | Date | boolean | null | number | string
-export type DataObject = Record<string, Data>
+export { LogtailAdaptor } from './adaptors/logtail-adaptor'
+export { StdioAdaptor } from './adaptors/stdio-adaptor'
 
-export type LogFn = (msg: string, data?: DataObject) => void
-
-export type LogLevel = 'debug' | 'error' | 'info' | 'warn'
-
-export type Logger = Adapter & {
-  catch: (err: unknown) => void
+export type Adaptor = {
+  debug: (log: Log, message: string, context?: Record<string, unknown>) => void
+  info: (log: Log, message: string, context?: Record<string, unknown>) => void
+  warn: (log: Log, message: string, context?: Record<string, unknown>) => void
+  error: (log: Log, message: string, context?: Record<string, unknown>) => void
 }
 
-export const create = (adapters: Adapter[]): Logger => ({
-  catch: (err: unknown) => adapters.forEach(adapter => adapter.error(...parseError(err))),
-  debug: (msg, data) => adapters.forEach(adapter => adapter.debug(msg, data)),
-  error: (msg, data) => adapters.forEach(adapter => adapter.error(msg, data)),
-  info: (msg, data) => adapters.forEach(adapter => adapter.info(msg, data)),
-  warn: (msg, data) => adapters.forEach(adapter => adapter.warn(msg, data))
-})
+export enum LogLevel {
+  Debug,
+  Info,
+  Warn,
+  Error
+}
 
-export const parseError = (err: unknown): [string, DataObject?] => {
-  let msg = 'caught error'
-  const data: DataObject = {}
-  if (err instanceof Error) {
-    msg = err.toString()
-    if (err.stack !== undefined) data.stack = err.stack
+export class Log {
+  public readonly name?: string
+  private adaptors: Adaptor[]
+  private context?: Record<string, unknown>
+  private level = LogLevel.Info
+
+  constructor(adaptors: Adaptor[])
+  constructor(adaptors: Adaptor[], name?: string)
+  constructor(adaptors: Adaptor[], level?: LogLevel)
+  constructor(adaptors: Adaptor[], context?: Record<string, unknown>)
+  constructor(adaptors: Adaptor[], name?: string, level?: LogLevel)
+  constructor(adaptors: Adaptor[], name?: string, context?: Record<string, unknown>)
+  constructor(adaptors: Adaptor[], level?: LogLevel, context?: Record<string, unknown>)
+  constructor(adaptors: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>)
+  constructor(
+    adaptors: Adaptor[],
+    name?: string | LogLevel | Record<string, unknown>,
+    level?: LogLevel | Record<string, unknown>,
+    context?: Record<string, unknown>
+  ) {
+    this.adaptors = adaptors
+
+    if (typeof name === 'string') this.name = name
+    else if (typeof name === 'number') this.level = name
+    else if (name) this.context = name
+
+    if (typeof level === 'number') this.level = level
+    else if (level) this.context = level
+
+    if (context) this.context = context
   }
-  else switch (typeof err) {
-  case 'string':
-    msg = err
-    break
-  case 'boolean':
-  case 'number':
-    data.err = err
-    break
-  case 'object':
-    if (err !== null) data.err = err.toString()
-    break
-  default:
-    data.err = '[unsupported data]'
-    break
+
+  debug(message: string, context?: Record<string, unknown>): void {
+    if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, message, this.mergeContexts(context)))
   }
-  return [msg, Object.keys(data).length ? data : undefined]
-}
 
-export const logLevels: string[] = ['debug', 'info', 'warn', 'error']
+  info(message: string, context?: Record<string, unknown>): void {
+    if (this.level <= LogLevel.Info) this.adaptors.forEach(adaptor => adaptor.info(this, message, this.mergeContexts(context)))
+  }
 
-export const logLevelInt = (s: string) => {
-  const n = logLevels.indexOf(s)
-  if (n < 0) throw new Error(`invalid LogLevel "${s}"`)
-  return n
-}
+  warn(message: string, context?: Record<string, unknown>): void {
+    if (this.level <= LogLevel.Warn) this.adaptors.forEach(adaptor => adaptor.warn(this, message, this.mergeContexts(context)))
+  }
 
-export const logLevelsObject = logLevels.reduce((a, b, i) => ({ ...a, [b]: i }), {} as Record<LogLevel, number>)
+  error(message: string, context?: Record<string, unknown>): void {
+    if (this.level <= LogLevel.Error) this.adaptors.forEach(adaptor => adaptor.error(this, message, this.mergeContexts(context)))
+  }
 
-export const logLevelString = (n: number) => {
-  if (n < 0 || n >= logLevels.length) throw new Error(`invalid LogLevel ${n}`)
-  return logLevels[n]
+  extend(name: string): Log
+  extend(context: Record<string, unknown>): Log
+  extend(name: string, context: Record<string, unknown>): Log
+  extend(name: string | Record<string, unknown>, context?: Record<string, unknown>): Log {
+    if (typeof name === 'string' && context) return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.mergeContexts(context))
+    else if (typeof name === 'string') return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.context)
+    else if (name) return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name))
+    else return new Log(this.adaptors, this.name, this.level, this.context)
+  }
+
+  private mergeContexts(context?: Record<string, unknown>): Record<string, unknown> | undefined {
+    if (this.context || context) return { ...this.context, ...context }
+    return undefined
+  }
 }

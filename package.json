@@ -1,10 +1,11 @@
 {
   "name": "@edge/log",
   "version": "0.1.0",
-  "description": "Logging utility library for the XE blockchain",
+  "description": "Logging utility library",
   "license": "GPU",
   "author": "Edge Network <core@edge.network>",
   "contributors": [
+    "Adam K Dean <adam@edge.network>",
     "Aneurin \"Anny\" Barker Snook <aneurin@edge.network>"
   ],
   "main": "dist/lib/index.js",
@@ -18,10 +19,12 @@
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
     "eslint": "^7.32.0",
+    "ts-node": "^10.2.1",
     "typescript": "^4.4.3"
   },
   "dependencies": {
-    "@types/node": "^16.10.2",
+    "@logtail/node": "^0.1.10",
+    "@logtail/types": "^0.1.8",
     "chalk": "^4.1.2"
   }
 }
