@@ -25,6 +25,25 @@ log.warn('achtung! warning!')
 log.error('unfortunately, an error occurred')
 ```
 
+### Full usage
+
+It is possible to use any number of parameters when instantiating the log:
+
+```ts
+import { Log, LogLevel, LogtailAdaptor, StdioAdaptor } from '@edge/log'
+
+const name = 'example'
+const level = LogLevel.Debug
+const context = { timestamp: Date.now() }
+
+const stdioAdaptor = new StdioAdaptor()
+const logtailAdaptor = new LogtailAdaptor(process.env.LOGTAIL_SOURCE_TOKEN)
+const adaptors = [ stdioAdaptor, logtailAdaptor ]
+
+const log = new Log(adaptors, name, level, context)
+log.info('this is a full usage example', { isItCool: true })
+```
+
 ### Log levels
 
 There are four log levels, exposed via the `LogLevel` type.
