@@ -12,8 +12,8 @@
   "scripts": {
     "build": "tsc",
     "publish": "npm run build && npm publish",
-    "lint": "eslint --ext .ts src || true",
-    "lint:fix": "eslint --fix --ext .ts src"
+    "lint": "eslint --ext .ts lib",
+    "lint:fix": "eslint --fix --ext .ts lib"
   },
   "devDependencies": {
     "@edge/eslint-config-typescript": "^0.1.1",
