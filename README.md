@@ -2,13 +2,43 @@
 
 # Log
 
-Logging utility library
+Logging utility library with powerful adaptor middleware.
+
+![npm version](https://img.shields.io/npm/v/@edge/log) ![npm downloads](https://img.shields.io/npm/dt/@edge/log) ![license](https://img.shields.io/npm/l/@edge/log)
+
+<!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
+
+<!-- code_chunk_output -->
+
+- [Log](#log)
+  - [Usage](#usage)
+    - [Basic usage](#basic-usage)
+    - [Full usage](#full-usage)
+    - [Log levels](#log-levels)
+    - [Name](#name)
+    - [Context](#context)
+      - [Per message context](#per-message-context)
+      - [Per instance context](#per-instance-context)
+      - [Merging contexts](#merging-contexts)
+  - [Adaptors](#adaptors)
+    - [LogtailAdaptor](#logtailadaptor)
+    - [StdioAdaptor](#stdioadaptor)
+    - [Using multiple adaptors](#using-multiple-adaptors)
+    - [Custom adaptors](#custom-adaptors)
+
+<!-- /code_chunk_output -->
 
 ## Usage
 
 The `@edge/log` package uses [adaptors](#adaptors) that act as logging middleware. The most basic adaptor is the standard input/output adaptor `StdioAdaptor` which essentially acts like an enhanced console log. Adaptors can be configured and passed in at instantiation, along with the optional parameters _name_, _level_, and _context_, or attached with the `use(adaptor)` method.
 
-### Basic Usage
+Install with NPM:
+
+```bash
+$ npm install @edge/log --save
+```
+
+### Basic usage
 
 This example shows basic console logging:
 
