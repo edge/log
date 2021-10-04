@@ -24,25 +24,28 @@ export enum LogLevel {
 
 export class Log {
   public readonly name?: string
-  private adaptors: Adaptor[]
-  private context?: Record<string, unknown>
+  private adaptors: Adaptor[] = []
+  private context: Record<string, unknown> = {}
   private level = LogLevel.Info
 
-  constructor(adaptors: Adaptor[])
-  constructor(adaptors: Adaptor[], name?: string)
-  constructor(adaptors: Adaptor[], level?: LogLevel)
-  constructor(adaptors: Adaptor[], context?: Record<string, unknown>)
-  constructor(adaptors: Adaptor[], name?: string, level?: LogLevel)
-  constructor(adaptors: Adaptor[], name?: string, context?: Record<string, unknown>)
-  constructor(adaptors: Adaptor[], level?: LogLevel, context?: Record<string, unknown>)
-  constructor(adaptors: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>)
+  constructor(adaptors?: Adaptor[])
+  constructor(adaptors?: Adaptor[], name?: string)
+  constructor(adaptors?: Adaptor[], level?: LogLevel)
+  constructor(adaptors?: Adaptor[], context?: Record<string, unknown>)
+  constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel)
+  constructor(adaptors?: Adaptor[], name?: string, context?: Record<string, unknown>)
+  constructor(adaptors?: Adaptor[], level?: LogLevel, context?: Record<string, unknown>)
+  constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>)
   constructor(
-    adaptors: Adaptor[],
+    adaptors?: Adaptor[] | string | LogLevel | Record<string, unknown>,
     name?: string | LogLevel | Record<string, unknown>,
     level?: LogLevel | Record<string, unknown>,
     context?: Record<string, unknown>
   ) {
-    this.adaptors = adaptors
+    if (Array.isArray(adaptors)) this.adaptors = adaptors
+    if (typeof adaptors === 'string') this.name = adaptors
+    else if (typeof adaptors === 'number') this.level = adaptors
+    else if (adaptors && !Array.isArray(adaptors)) this.context = adaptors
 
     if (typeof name === 'string') this.name = name
     else if (typeof name === 'number') this.level = name
@@ -52,6 +55,10 @@ export class Log {
     else if (level) this.context = level
 
     if (context) this.context = context
+  }
+
+  use(adaptor: Adaptor): void {
+    this.adaptors.push(adaptor)
   }
 
   debug(message: string, context?: Record<string, unknown>): void {
