@@ -270,7 +270,7 @@ And the info message would have the context:
 
 ## Adaptors
 
-
+Adaptors form the powerful middleware layer of `@edge/log`. At their most basic, they are objects with four methods: `debug`, `info`, `warn`, and `error`, and each of these methods take three parameters: the `Log` instance, a log message as a string, and an optional context object. See [custom adaptors](#custom-adaptors) below for more details.
 
 ### LogtailAdaptor
 
