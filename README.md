@@ -40,7 +40,9 @@ $ npm install @edge/log --save
 
 ### Basic usage
 
-This example shows basic console logging:
+This example shows basic console logging.
+
+Note, the default log level is `Info` so you won't see the debug message:
 
 ```ts
 import { Log, StdioAdaptor } from '@edge/log'
@@ -54,6 +56,8 @@ log.info('for your information')
 log.warn('achtung! warning!')
 log.error('unfortunately, an error occurred')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136059420-5fd98ecd-66fe-4bc5-88f4-c0e87b64712e.png" width="750">
 
 ### Full usage
 
@@ -71,20 +75,17 @@ const logtailAdaptor = new LogtailAdaptor(process.env.LOGTAIL_SOURCE_TOKEN)
 const adaptors = [ stdioAdaptor, logtailAdaptor ]
 
 const log = new Log(adaptors, name, level, context)
-log.info('this is a full usage example', { isItCool: true })
+log.info('example', { cool: true })
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136059701-197cb6ae-3c18-43bf-8ace-3c7de4dbd52c.png" width="750">
 
 ### Log levels
 
 There are four log levels, exposed via the `LogLevel` type.
 
 ```ts
-export enum LogLevel {
-  Debug,
-  Info,
-  Warn,
-  Error
-}
+export enum LogLevel { Debug, Info, Warn, Error }
 ```
 
 The default `LogLevel` is `Info`, but you can set this when creating your `Log` instance. All messages equal to and greater than the current log level will be processed, and the others will be ignored.
@@ -102,6 +103,8 @@ log.warn('but you will see me')
 log.error('and me')
 ```
 
+<img src="https://user-images.githubusercontent.com/1639527/136059808-937e863a-3d82-4fa2-b5ca-67a9927f071d.png" width="750">
+
 You can change the log level at runtime by using the `setLogLevel(level)` method:
 
 ```ts
@@ -117,6 +120,8 @@ log.setLogLevel(LogLevel.Info)
 log.info('but you will see me now')
 ```
 
+<img src="https://user-images.githubusercontent.com/1639527/136059924-7bb918c5-0379-4364-9cdf-72da42992e95.png" width="750">
+
 ### Name
 
 You can assign a name to `Log` instances, for example:
@@ -126,8 +131,10 @@ const log = new Log('readme')
 
 log.use(new StdioAdaptor())
 
-log.debug('this is an example')
+log.info('this is an example')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136044478-048f88f5-5e7e-4bb0-b54d-fd15c7e8255f.png" width="750">
 
 You can extend the name with the `extend` method:
 
@@ -136,9 +143,13 @@ const log = new Log('readme')
 
 log.use(new StdioAdaptor())
 
+log.info('this is an example')
+
 const eventLog = log.extend('event')
 eventLog.info('the name of this log will be readme:event')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136044704-0badf479-aa27-436f-9dc7-1ba4bce4402f.png" width="750">
 
 ### Context
 
@@ -149,21 +160,27 @@ You can pass in context along with your log message. In the case of `StdioAdapto
 For example, you could attach debug data to a message:
 
 ```ts
-const data = { ... }
+const log = new Log([ new StdioAdaptor() ], LogLevel.Debug)
 
-log.debug('debug context example', data)
+log.debug('debug context example', { debugData: [1, 2, 3] })
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136061977-c37ed920-5905-4dd0-aaaa-9329ae584e61.png" width="750">
 
 Or perhaps an error:
 
 ```ts
 try {
   // imagine something bad happens here
+  throw new Error('something bad happened')
 }
-catch (e) {
-  log.error('an error was caught', e)
+catch (err: any) {
+  if (err instanceof Error) log.error('an error was caught', err)
+  else log.error('an unknown error was caught')
 }
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136062224-9dd3ed86-d32b-4bde-997b-0a6e0c907a3e.png" width="750">
 
 #### Per instance context
 
@@ -181,8 +198,10 @@ const log = new Log({
 
 log.use(new StdioAdaptor())
 
-log.debug('debugging')
+log.info('example')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136058727-5343fef4-ac70-4f89-9fad-2d3c7c7214fb.png" width="750">
 
 Or by extending an existing `Log` instance:
 
@@ -192,10 +211,13 @@ import { Log, StdioAdaptor } from '@edge/log'
 const log = new Log()
 log.use(new StdioAdaptor())
 
+const event = { eventID: 528 }
 const eventLog = log.extend(event)
 
 eventLog.info('event started')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136059012-139df9f4-7c5d-4411-a6ff-ce69cbdbabcc.png" width="750">
 
 #### Merging contexts
 
@@ -220,7 +242,7 @@ The above example would start with the `log` instance and the context:
 
 ```ts
 {
-  instance: 'ed5eb32b-3e40-4d73-a77b-9a223387e9f0',
+  instance: 'ed5eb32b',
   someFlag: true
 }
 ```
@@ -229,7 +251,7 @@ Then the `eventLog` instance would have the context:
 
 ```ts
 {
-  instance: 'ed5eb32b-3e40-4d73-a77b-9a223387e9f0',
+  instance: 'ed5eb32b',
   someFlag: true,
   eventName: 'testEvent'
 }
@@ -239,7 +261,7 @@ And the info message would have the context:
 
 ```ts
 {
-  instance: 'ed5eb32b-3e40-4d73-a77b-9a223387e9f0',
+  instance: 'ed5eb32b',
   someFlag: true,
   eventName: 'testEvent',
   eventStartDate: '2021-10-04T20:16:49.988Z'
@@ -354,3 +376,5 @@ const log = new Log('custom log example')
 log.use(new ConsoleLogAdaptor())
 log.info('hello from the console')
 ```
+
+<img src="https://user-images.githubusercontent.com/1639527/136059262-fd10e074-4d5c-4e6d-9f0b-819cd299f43e.png" width="750">
