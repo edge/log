@@ -102,7 +102,7 @@ export class Log {
     case 'string':
     case 'boolean':
     case 'number':
-      ctx.value = ctx
+      ctx._ = context.toString()
       break
     case 'object':
       if (context instanceof Error) {
