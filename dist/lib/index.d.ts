@@ -6,6 +6,7 @@ export declare type Adaptor = {
     warn: (log: Log, message: string, context?: Record<string, unknown>) => void;
     error: (log: Log, message: string, context?: Record<string, unknown>) => void;
 };
+export declare type LogContext = Record<string, unknown> | Error | Date | boolean | null | number | string;
 export declare enum LogLevel {
     Debug = 0,
     Info = 1,
@@ -15,8 +16,15 @@ export declare enum LogLevel {
 export declare class Log {
     readonly name?: string;
     private adaptors;
-    private context;
+    private context?;
     private level;
+    constructor(name?: string);
+    constructor(name?: string, level?: LogLevel);
+    constructor(name?: string, context?: Record<string, unknown>);
+    constructor(name?: string, level?: LogLevel, context?: Record<string, unknown>);
+    constructor(level?: LogLevel);
+    constructor(level?: LogLevel, context?: Record<string, unknown>);
+    constructor(context?: Record<string, unknown>);
     constructor(adaptors?: Adaptor[]);
     constructor(adaptors?: Adaptor[], name?: string);
     constructor(adaptors?: Adaptor[], level?: LogLevel);
@@ -27,12 +35,12 @@ export declare class Log {
     constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>);
     use(adaptor: Adaptor): void;
     setLogLevel(level: LogLevel): void;
-    debug(message: string, context?: Record<string, unknown>): void;
-    info(message: string, context?: Record<string, unknown>): void;
-    warn(message: string, context?: Record<string, unknown>): void;
-    error(message: string, context?: Record<string, unknown>): void;
+    debug(message: string, context?: LogContext): void;
+    info(message: string, context?: LogContext): void;
+    warn(message: string, context?: LogContext): void;
+    error(message: string, context?: LogContext): void;
     extend(name: string): Log;
-    extend(context: Record<string, unknown>): Log;
-    extend(name: string, context: Record<string, unknown>): Log;
+    extend(context: LogContext): Log;
+    extend(name: string, context: LogContext): Log;
     private mergeContexts;
 }

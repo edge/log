@@ -33,7 +33,6 @@ var LogLevel;
 var Log = (function () {
     function Log(adaptors, name, level, context) {
         this.adaptors = [];
-        this.context = {};
         this.level = LogLevel.Info;
         if (Array.isArray(adaptors))
             this.adaptors = adaptors;
@@ -93,9 +92,24 @@ var Log = (function () {
             return new Log(this.adaptors, this.name, this.level, this.context);
     };
     Log.prototype.mergeContexts = function (context) {
-        if (this.context || context)
-            return __assign(__assign({}, this.context), context);
-        return undefined;
+        var ctx = __assign({}, this.context);
+        switch (typeof context) {
+            case 'string':
+            case 'boolean':
+            case 'number':
+                ctx._ = context.toString();
+                break;
+            case 'object':
+                if (context instanceof Error) {
+                    ctx.error = context.toString();
+                    if (context.stack !== undefined)
+                        ctx.stack = context.stack;
+                }
+                else if (context !== null)
+                    ctx = __assign(__assign({}, ctx), context);
+                break;
+        }
+        return Object.keys(ctx).length ? ctx : undefined;
     };
     return Log;
 }());
