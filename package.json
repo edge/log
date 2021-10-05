@@ -1,6 +1,6 @@
 {
   "name": "@edge/log",
-  "version": "0.1.0",
+  "version": "1.0.0-rc1",
   "description": "Logging utility library with powerful adaptor middleware",
   "license": "GPU",
   "author": "Edge Network <core@edge.network>",
