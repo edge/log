@@ -15,19 +15,23 @@ export type Adaptor = {
   error: (log: Log, message: string, context?: Record<string, unknown>) => void
 }
 
-export enum LogLevel {
-  Debug,
-  Info,
-  Warn,
-  Error
-}
+export type LogContext = Record<string, unknown> | Error | Date | boolean | null | number | string
+
+export enum LogLevel { Debug, Info, Warn, Error }
 
 export class Log {
   public readonly name?: string
   private adaptors: Adaptor[] = []
-  private context: Record<string, unknown> = {}
+  private context?: Record<string, unknown>
   private level = LogLevel.Info
 
+  constructor(name?: string)
+  constructor(name?: string, level?: LogLevel)
+  constructor(name?: string, context?: Record<string, unknown>)
+  constructor(name?: string, level?: LogLevel, context?: Record<string, unknown>)
+  constructor(level?: LogLevel)
+  constructor(level?: LogLevel, context?: Record<string, unknown>)
+  constructor(context?: Record<string, unknown>)
   constructor(adaptors?: Adaptor[])
   constructor(adaptors?: Adaptor[], name?: string)
   constructor(adaptors?: Adaptor[], level?: LogLevel)
@@ -65,34 +69,50 @@ export class Log {
     this.level = level
   }
 
-  debug(message: string, context?: Record<string, unknown>): void {
+  debug(message: string, context?: LogContext): void {
     if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, message, this.mergeContexts(context)))
   }
 
-  info(message: string, context?: Record<string, unknown>): void {
+  info(message: string, context?: LogContext): void {
     if (this.level <= LogLevel.Info) this.adaptors.forEach(adaptor => adaptor.info(this, message, this.mergeContexts(context)))
   }
 
-  warn(message: string, context?: Record<string, unknown>): void {
+  warn(message: string, context?: LogContext): void {
     if (this.level <= LogLevel.Warn) this.adaptors.forEach(adaptor => adaptor.warn(this, message, this.mergeContexts(context)))
   }
 
-  error(message: string, context?: Record<string, unknown>): void {
+  error(message: string, context?: LogContext): void {
     if (this.level <= LogLevel.Error) this.adaptors.forEach(adaptor => adaptor.error(this, message, this.mergeContexts(context)))
   }
 
   extend(name: string): Log
-  extend(context: Record<string, unknown>): Log
-  extend(name: string, context: Record<string, unknown>): Log
-  extend(name: string | Record<string, unknown>, context?: Record<string, unknown>): Log {
+  extend(context: LogContext): Log
+  extend(name: string, context: LogContext): Log
+  extend(name: string | LogContext, context?: LogContext): Log {
     if (typeof name === 'string' && context) return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.mergeContexts(context))
     else if (typeof name === 'string') return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.context)
     else if (name) return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name))
     else return new Log(this.adaptors, this.name, this.level, this.context)
   }
 
-  private mergeContexts(context?: Record<string, unknown>): Record<string, unknown> | undefined {
-    if (this.context || context) return { ...this.context, ...context }
-    return undefined
+  private mergeContexts(context?: LogContext): Record<string, unknown> | undefined {
+    let ctx: Record<string, unknown> = { ...this.context }
+
+    switch (typeof context) {
+    case 'string':
+    case 'boolean':
+    case 'number':
+      ctx.value = ctx
+      break
+    case 'object':
+      if (context instanceof Error) {
+        ctx.error = context.toString()
+        if (context.stack !== undefined) ctx.stack = context.stack
+      }
+      else if (context !== null) ctx = { ...ctx, ...context }
+      break
+    }
+
+    return Object.keys(ctx).length ? ctx : undefined
   }
 }
