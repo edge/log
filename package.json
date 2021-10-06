@@ -1,6 +1,6 @@
 {
   "name": "@edge/log",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Logging utility library with powerful adaptor middleware",
   "license": "GPU",
   "author": "Edge Network <core@edge.network>",
@@ -12,7 +12,6 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "publish": "npm run build && npm publish",
     "lint": "eslint --ext .ts lib",
     "lint:fix": "eslint --fix --ext .ts lib"
   },
