@@ -67,7 +67,7 @@ const context = { timestamp: Date.now() }
 
 const stdioAdaptor = new StdioAdaptor()
 const logtailAdaptor = new LogtailAdaptor(process.env.LOGTAIL_SOURCE_TOKEN)
-const adaptors = [ stdioAdaptor, logtailAdaptor ]
+const adaptors = [stdioAdaptor, logtailAdaptor]
 
 const log = new Log(adaptors, name, level, context)
 log.info('example', { cool: true })
@@ -89,7 +89,6 @@ The default `LogLevel` is `Info`, but you can set this when creating your `Log` 
 import { Log, LogLevel, StdioAdaptor } from '@edge/log'
 
 const log = new Log(LogLevel.Warn)
-
 log.use(new StdioAdaptor())
 
 log.debug('you won\'t see me')
@@ -106,12 +105,12 @@ You can change the log level at runtime by using the `setLogLevel(level)` method
 import { Log, LogLevel, StdioAdaptor } from '@edge/log'
 
 const log = new Log(LogLevel.Warn)
-
 log.use(new StdioAdaptor())
 
 log.debug('you won\'t see me')
 
 log.setLogLevel(LogLevel.Info)
+
 log.info('but you will see me now')
 ```
 
@@ -123,9 +122,7 @@ You can assign a name to `Log` instances, for example:
 
 ```ts
 const log = new Log('readme')
-
 log.use(new StdioAdaptor())
-
 log.info('this is an example')
 ```
 
@@ -135,9 +132,7 @@ You can extend the name with the `extend` method:
 
 ```ts
 const log = new Log('readme')
-
 log.use(new StdioAdaptor())
-
 log.info('this is an example')
 
 const eventLog = log.extend('event')
@@ -155,7 +150,7 @@ You can pass in context along with your log message. In the case of `StdioAdapto
 For example, you could attach debug data to a message:
 
 ```ts
-const log = new Log([ new StdioAdaptor() ], LogLevel.Debug)
+const log = new Log([new StdioAdaptor()], LogLevel.Debug)
 
 log.debug('debug context example', { debugData: [1, 2, 3] })
 ```
@@ -203,9 +198,7 @@ Or by extending an existing `Log` instance:
 ```ts
 import { Log, StdioAdaptor } from '@edge/log'
 
-const log = new Log()
-log.use(new StdioAdaptor())
-
+const log = new Log([new StdioAdaptor()])
 const event = { eventID: 528 }
 const eventLog = log.extend(event)
 
@@ -299,7 +292,7 @@ It takes one parameter, `useStderr`. If this is set, errors will be written to s
 // Errors will be written to stdout
 const stdoutOnly = new StdioAdaptor()
 
-// Errors will be written to stdout
+// Errors will be written to stderr
 const stderrToo = new StdioAdaptor(true)
 ```
 
