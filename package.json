@@ -1,0 +1,32 @@
+{
+  "name": "@edge/log",
+  "version": "1.0.0-rc1",
+  "description": "Logging utility library with powerful adaptor middleware",
+  "license": "GPU",
+  "author": "Edge Network <core@edge.network>",
+  "contributors": [
+    "Adam K Dean <adam@edge.network>",
+    "Aneurin \"Anny\" Barker Snook <aneurin@edge.network>"
+  ],
+  "main": "dist/lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "publish": "npm run build && npm publish",
+    "lint": "eslint --ext .ts lib",
+    "lint:fix": "eslint --fix --ext .ts lib"
+  },
+  "devDependencies": {
+    "@edge/eslint-config-typescript": "^0.1.1",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
+    "eslint": "^7.32.0",
+    "ts-node": "^10.2.1",
+    "typescript": "^4.4.3"
+  },
+  "dependencies": {
+    "@logtail/node": "^0.1.10",
+    "@logtail/types": "^0.1.8",
+    "chalk": "^4.1.2"
+  }
+}
