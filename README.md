@@ -4,7 +4,7 @@
 
 Logging utility library with powerful adaptor middleware.
 
-![npm version](https://img.shields.io/npm/v/@edge/log) ![npm downloads](https://img.shields.io/npm/dt/@edge/log) ![license](https://img.shields.io/npm/l/@edge/log)
+[![npm version](https://img.shields.io/npm/v/@edge/log)](https://www.npmjs.com/package/@edge/log) [![npm downloads](https://img.shields.io/npm/dt/@edge/log)](https://www.npmjs.com/package/@edge/log) [![license](https://img.shields.io/npm/l/@edge/log)](LICENSE.md)
 
 <!-- @import "[TOC]" {cmd="toc" depthFrom=1 depthTo=6 orderedList=false} -->
 
