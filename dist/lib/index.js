@@ -18,7 +18,7 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     o[k2] = m[k];
 }));
 exports.__esModule = true;
-exports.Log = exports.LogLevel = exports.StdioAdaptor = exports.LogtailAdaptor = void 0;
+exports.Log = exports.LogLevelFromString = exports.LogLevel = exports.StdioAdaptor = exports.LogtailAdaptor = void 0;
 var logtail_adaptor_1 = require("./adaptors/logtail-adaptor");
 __createBinding(exports, logtail_adaptor_1, "LogtailAdaptor");
 var stdio_adaptor_1 = require("./adaptors/stdio-adaptor");
@@ -30,6 +30,20 @@ var LogLevel;
     LogLevel[LogLevel["Warn"] = 2] = "Warn";
     LogLevel[LogLevel["Error"] = 3] = "Error";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
+function LogLevelFromString(level) {
+    var levelLower = level.toLowerCase();
+    if (levelLower === 'debug')
+        return LogLevel.Debug;
+    else if (levelLower === 'info')
+        return LogLevel.Info;
+    else if (levelLower === 'warn')
+        return LogLevel.Warn;
+    else if (levelLower === 'error')
+        return LogLevel.Error;
+    else
+        return LogLevel.Info;
+}
+exports.LogLevelFromString = LogLevelFromString;
 var Log = (function () {
     function Log(adaptors, name, level, context) {
         this.adaptors = [];
