@@ -13,6 +13,7 @@ export declare enum LogLevel {
     Warn = 2,
     Error = 3
 }
+export declare function LogLevelFromString(level: string): LogLevel;
 export declare class Log {
     readonly name?: string;
     private adaptors;

@@ -19,6 +19,15 @@ export type LogContext = Record<string, unknown> | Error | Date | boolean | null
 
 export enum LogLevel { Debug, Info, Warn, Error }
 
+export function LogLevelFromString(level: string): LogLevel {
+  const levelLower = level.toLowerCase()
+  if (levelLower === 'debug') return LogLevel.Debug
+  else if (levelLower === 'info') return LogLevel.Info
+  else if (levelLower === 'warn') return LogLevel.Warn
+  else if (levelLower === 'error') return LogLevel.Error
+  else return LogLevel.Info
+}
+
 export class Log {
   public readonly name?: string
   private adaptors: Adaptor[] = []
