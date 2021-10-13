@@ -10,7 +10,7 @@ import { Log, LogContext, StdioAdaptor } from '../lib'
 const log = new Log()
 log.use(new StdioAdaptor())
 
-const messages: [string, LogContext?][] = [
+const messages: [LogContext, LogContext?][] = [
   ['abc'],
   ['def', { value1: 'xyz', value2: Math.random() }],
   ['ghi', {}],
@@ -22,12 +22,25 @@ const messages: [string, LogContext?][] = [
     randint: Math.floor(Math.random() * 1e6),
     value4: 'zyx'
   }],
-  ['mno', 'unnamed value']
+  ['mno', 'unnamed value'],
+  [{ contextOnly: true }],
+  [4],
+  [false],
+  [new Date()],
+  [new Error('nothing is wrong, just checking')]
 ]
 
 messages.forEach(([msg, ctx]) => {
-  log.debug(msg, ctx)
-  log.info(msg, ctx)
-  log.warn(msg, ctx)
-  log.error(msg, ctx)
+  if (typeof msg === 'string') {
+    log.debug(msg, ctx)
+    log.info(msg, ctx)
+    log.warn(msg, ctx)
+    log.error(msg, ctx)
+  }
+  else {
+    log.debug(msg)
+    log.info(msg)
+    log.warn(msg)
+    log.error(msg)
+  }
 })
