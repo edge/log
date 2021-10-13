@@ -28,6 +28,36 @@ export function LogLevelFromString(level: string): LogLevel {
   else return LogLevel.Info
 }
 
+function disambiguate(message: LogContext, context: LogContext | undefined): [string, LogContext?] {
+  if (typeof message === 'string') return [message, context]
+  if (typeof message === 'number') return [`${message}`, context]
+  if (typeof message === 'boolean') return [`${message}`, context]
+  if (message === null) return ['null', context]
+  if (message instanceof Date) return [message.toString(), context]
+  if (message instanceof Error) return ['', mergeContexts(message, mergeContexts(context, {}) || {})]
+  // message is a Record; dismiss context, as the input signature disallows it
+  return ['', message]
+}
+
+function mergeContexts(context: LogContext | undefined, into: Record<string, unknown>): Record<string, unknown> | undefined {
+  switch (typeof context) {
+  case 'string':
+  case 'boolean':
+  case 'number':
+    into._ = context.toString()
+    break
+  case 'object':
+    if (context instanceof Error) {
+      into.error = context.toString()
+      if (context.stack !== undefined) into.stack = context.stack
+    }
+    else if (context !== null) into = { ...into, ...context }
+    break
+  }
+
+  return Object.keys(into).length ? into : undefined
+}
+
 export class Log {
   public readonly name?: string
   private adaptors: Adaptor[] = []
@@ -78,20 +108,36 @@ export class Log {
     this.level = level
   }
 
-  debug(message: string, context?: LogContext): void {
-    if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, message, this.mergeContexts(context)))
+  debug(message: string): void
+  debug(context: LogContext): void
+  debug(message: string, context?: LogContext): void
+  debug(message: LogContext, context?: LogContext): void {
+    const [fwdMessage, fwdContext] = disambiguate(message, context)
+    if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
-  info(message: string, context?: LogContext): void {
-    if (this.level <= LogLevel.Info) this.adaptors.forEach(adaptor => adaptor.info(this, message, this.mergeContexts(context)))
+  info(message: string): void
+  info(context: LogContext): void
+  info(message: string, context?: LogContext): void
+  info(message: LogContext, context?: LogContext): void {
+    const [fwdMessage, fwdContext] = disambiguate(message, context)
+    if (this.level <= LogLevel.Info) this.adaptors.forEach(adaptor => adaptor.info(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
+  warn(message: string): void
+  warn(context: LogContext): void
+  warn(message: string, context?: LogContext): void
   warn(message: string, context?: LogContext): void {
-    if (this.level <= LogLevel.Warn) this.adaptors.forEach(adaptor => adaptor.warn(this, message, this.mergeContexts(context)))
+    const [fwdMessage, fwdContext] = disambiguate(message, context)
+    if (this.level <= LogLevel.Warn) this.adaptors.forEach(adaptor => adaptor.warn(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
+  error(message: string): void
+  error(context: LogContext): void
+  error(message: string, context?: LogContext): void
   error(message: string, context?: LogContext): void {
-    if (this.level <= LogLevel.Error) this.adaptors.forEach(adaptor => adaptor.error(this, message, this.mergeContexts(context)))
+    const [fwdMessage, fwdContext] = disambiguate(message, context)
+    if (this.level <= LogLevel.Error) this.adaptors.forEach(adaptor => adaptor.error(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   extend(name: string): Log
@@ -105,23 +151,6 @@ export class Log {
   }
 
   private mergeContexts(context?: LogContext): Record<string, unknown> | undefined {
-    let ctx: Record<string, unknown> = { ...this.context }
-
-    switch (typeof context) {
-    case 'string':
-    case 'boolean':
-    case 'number':
-      ctx._ = context.toString()
-      break
-    case 'object':
-      if (context instanceof Error) {
-        ctx.error = context.toString()
-        if (context.stack !== undefined) ctx.stack = context.stack
-      }
-      else if (context !== null) ctx = { ...ctx, ...context }
-      break
-    }
-
-    return Object.keys(ctx).length ? ctx : undefined
+    return mergeContexts(context, { ...this.context })
   }
 }
