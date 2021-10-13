@@ -13,7 +13,8 @@
     "build": "tsc",
     "build:watch": "tsc --watch",
     "lint": "eslint --ext .ts lib",
-    "lint:fix": "eslint --fix --ext .ts lib"
+    "lint:fix": "eslint --fix --ext .ts lib",
+    "test": "ts-node tests/index.ts"
   },
   "devDependencies": {
     "@edge/eslint-config-typescript": "^0.1.1",
