@@ -44,6 +44,40 @@ function LogLevelFromString(level) {
         return LogLevel.Info;
 }
 exports.LogLevelFromString = LogLevelFromString;
+function disambiguate(message, context) {
+    if (typeof message === 'string')
+        return [message, context];
+    if (typeof message === 'number')
+        return ["" + message, context];
+    if (typeof message === 'boolean')
+        return ["" + message, context];
+    if (message === null)
+        return ['null', context];
+    if (message instanceof Date)
+        return [message.toString(), context];
+    if (message instanceof Error)
+        return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
+    return ['', message];
+}
+function mergeContexts(context, into) {
+    switch (typeof context) {
+        case 'string':
+        case 'boolean':
+        case 'number':
+            into._ = context.toString();
+            break;
+        case 'object':
+            if (context instanceof Error) {
+                into.error = context.toString();
+                if (context.stack !== undefined)
+                    into.stack = context.stack;
+            }
+            else if (context !== null)
+                into = __assign(__assign({}, into), context);
+            break;
+    }
+    return Object.keys(into).length ? into : undefined;
+}
 var Log = (function () {
     function Log(adaptors, name, level, context) {
         this.adaptors = [];
@@ -77,23 +111,27 @@ var Log = (function () {
     };
     Log.prototype.debug = function (message, context) {
         var _this = this;
+        var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
         if (this.level === LogLevel.Debug)
-            this.adaptors.forEach(function (adaptor) { return adaptor.debug(_this, message, _this.mergeContexts(context)); });
+            this.adaptors.forEach(function (adaptor) { return adaptor.debug(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.info = function (message, context) {
         var _this = this;
+        var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
         if (this.level <= LogLevel.Info)
-            this.adaptors.forEach(function (adaptor) { return adaptor.info(_this, message, _this.mergeContexts(context)); });
+            this.adaptors.forEach(function (adaptor) { return adaptor.info(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.warn = function (message, context) {
         var _this = this;
+        var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
         if (this.level <= LogLevel.Warn)
-            this.adaptors.forEach(function (adaptor) { return adaptor.warn(_this, message, _this.mergeContexts(context)); });
+            this.adaptors.forEach(function (adaptor) { return adaptor.warn(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.error = function (message, context) {
         var _this = this;
+        var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
         if (this.level <= LogLevel.Error)
-            this.adaptors.forEach(function (adaptor) { return adaptor.error(_this, message, _this.mergeContexts(context)); });
+            this.adaptors.forEach(function (adaptor) { return adaptor.error(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.extend = function (name, context) {
         if (typeof name === 'string' && context)
@@ -106,24 +144,7 @@ var Log = (function () {
             return new Log(this.adaptors, this.name, this.level, this.context);
     };
     Log.prototype.mergeContexts = function (context) {
-        var ctx = __assign({}, this.context);
-        switch (typeof context) {
-            case 'string':
-            case 'boolean':
-            case 'number':
-                ctx._ = context.toString();
-                break;
-            case 'object':
-                if (context instanceof Error) {
-                    ctx.error = context.toString();
-                    if (context.stack !== undefined)
-                        ctx.stack = context.stack;
-                }
-                else if (context !== null)
-                    ctx = __assign(__assign({}, ctx), context);
-                break;
-        }
-        return Object.keys(ctx).length ? ctx : undefined;
+        return mergeContexts(context, __assign({}, this.context));
     };
     return Log;
 }());

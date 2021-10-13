@@ -36,9 +36,17 @@ export declare class Log {
     constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>);
     use(adaptor: Adaptor): void;
     setLogLevel(level: LogLevel): void;
+    debug(message: string): void;
+    debug(context: LogContext): void;
     debug(message: string, context?: LogContext): void;
+    info(message: string): void;
+    info(context: LogContext): void;
     info(message: string, context?: LogContext): void;
+    warn(message: string): void;
+    warn(context: LogContext): void;
     warn(message: string, context?: LogContext): void;
+    error(message: string): void;
+    error(context: LogContext): void;
     error(message: string, context?: LogContext): void;
     extend(name: string): Log;
     extend(context: LogContext): Log;
