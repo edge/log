@@ -57,7 +57,7 @@ function disambiguate(message, context) {
         return [message.toString(), context];
     if (message instanceof Error)
         return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
-    return ['', message];
+    return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
 }
 function mergeContexts(context, into) {
     switch (typeof context) {

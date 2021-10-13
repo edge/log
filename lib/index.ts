@@ -32,8 +32,7 @@ function disambiguate(message: LogContext, context: LogContext | undefined): [st
   if (message === null) return ['null', context]
   if (message instanceof Date) return [message.toString(), context]
   if (message instanceof Error) return ['', mergeContexts(message, mergeContexts(context, {}) || {})]
-  // message is a Record; dismiss context, as the input signature disallows it
-  return ['', message]
+  return ['', mergeContexts(message, mergeContexts(context, {}) || {})]
 }
 
 function mergeContexts(
