@@ -2,9 +2,6 @@
 // Use of this source code is governed by a GNU GPL-style license
 // that can be found in the LICENSE.md file. All rights reserved.
 
-/* eslint-disable max-len */
-/* eslint-disable nonblock-statement-body-position */
-
 export { LogtailAdaptor } from './adaptors/logtail-adaptor'
 export { StdioAdaptor } from './adaptors/stdio-adaptor'
 
@@ -39,7 +36,10 @@ function disambiguate(message: LogContext, context: LogContext | undefined): [st
   return ['', message]
 }
 
-function mergeContexts(context: LogContext | undefined, into: Record<string, unknown>): Record<string, unknown> | undefined {
+function mergeContexts(
+  context: LogContext | undefined,
+  into: Record<string, unknown>
+): Record<string, unknown> | undefined {
   switch (typeof context) {
   case 'string':
   case 'boolean':
@@ -112,39 +112,48 @@ export class Log {
   debug(context: LogContext): void
   debug(message: string, context?: LogContext): void
   debug(message: LogContext, context?: LogContext): void {
+    if (this.level > LogLevel.Debug) return
     const [fwdMessage, fwdContext] = disambiguate(message, context)
-    if (this.level === LogLevel.Debug) this.adaptors.forEach(adaptor => adaptor.debug(this, fwdMessage, this.mergeContexts(fwdContext)))
+    this.adaptors.forEach(adaptor => adaptor.debug(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   info(message: string): void
   info(context: LogContext): void
   info(message: string, context?: LogContext): void
   info(message: LogContext, context?: LogContext): void {
+    if (this.level > LogLevel.Info) return
     const [fwdMessage, fwdContext] = disambiguate(message, context)
-    if (this.level <= LogLevel.Info) this.adaptors.forEach(adaptor => adaptor.info(this, fwdMessage, this.mergeContexts(fwdContext)))
+    this.adaptors.forEach(adaptor => adaptor.info(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   warn(message: string): void
   warn(context: LogContext): void
   warn(message: string, context?: LogContext): void
   warn(message: string, context?: LogContext): void {
+    if (this.level > LogLevel.Warn) return
     const [fwdMessage, fwdContext] = disambiguate(message, context)
-    if (this.level <= LogLevel.Warn) this.adaptors.forEach(adaptor => adaptor.warn(this, fwdMessage, this.mergeContexts(fwdContext)))
+    this.adaptors.forEach(adaptor => adaptor.warn(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   error(message: string): void
   error(context: LogContext): void
   error(message: string, context?: LogContext): void
   error(message: string, context?: LogContext): void {
+    if (this.level > LogLevel.Error) return
     const [fwdMessage, fwdContext] = disambiguate(message, context)
-    if (this.level <= LogLevel.Error) this.adaptors.forEach(adaptor => adaptor.error(this, fwdMessage, this.mergeContexts(fwdContext)))
+    this.adaptors.forEach(adaptor => adaptor.error(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   extend(name: string): Log
   extend(context: LogContext): Log
   extend(name: string, context: LogContext): Log
   extend(name: string | LogContext, context?: LogContext): Log {
-    if (typeof name === 'string' && context) return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.mergeContexts(context))
+    if (typeof name === 'string' && context) {
+      return new Log(
+        this.adaptors,
+        `${this.name}:${name}`,
+        this.level, this.mergeContexts(context))
+    }
     else if (typeof name === 'string') return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.context)
     else if (name) return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name))
     else return new Log(this.adaptors, this.name, this.level, this.context)

@@ -111,31 +111,36 @@ var Log = (function () {
     };
     Log.prototype.debug = function (message, context) {
         var _this = this;
+        if (this.level > LogLevel.Debug)
+            return;
         var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
-        if (this.level === LogLevel.Debug)
-            this.adaptors.forEach(function (adaptor) { return adaptor.debug(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
+        this.adaptors.forEach(function (adaptor) { return adaptor.debug(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.info = function (message, context) {
         var _this = this;
+        if (this.level > LogLevel.Info)
+            return;
         var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
-        if (this.level <= LogLevel.Info)
-            this.adaptors.forEach(function (adaptor) { return adaptor.info(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
+        this.adaptors.forEach(function (adaptor) { return adaptor.info(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.warn = function (message, context) {
         var _this = this;
+        if (this.level > LogLevel.Warn)
+            return;
         var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
-        if (this.level <= LogLevel.Warn)
-            this.adaptors.forEach(function (adaptor) { return adaptor.warn(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
+        this.adaptors.forEach(function (adaptor) { return adaptor.warn(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.error = function (message, context) {
         var _this = this;
+        if (this.level > LogLevel.Error)
+            return;
         var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
-        if (this.level <= LogLevel.Error)
-            this.adaptors.forEach(function (adaptor) { return adaptor.error(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
+        this.adaptors.forEach(function (adaptor) { return adaptor.error(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.extend = function (name, context) {
-        if (typeof name === 'string' && context)
+        if (typeof name === 'string' && context) {
             return new Log(this.adaptors, this.name + ":" + name, this.level, this.mergeContexts(context));
+        }
         else if (typeof name === 'string')
             return new Log(this.adaptors, this.name + ":" + name, this.level, this.context);
         else if (name)
