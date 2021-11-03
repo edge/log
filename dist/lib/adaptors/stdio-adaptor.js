@@ -47,7 +47,7 @@ var StdioAdaptor = (function () {
         var levelText = colors.background(" " + logLevelAbbrs[level] + " ");
         var nameText = name ? colors.foreground("[" + name + "]") : '';
         var messageText = chalk_1["default"].white(message);
-        var contextText = context ? chalk_1["default"].bgGrey(JSON.stringify(context)) : '';
+        var contextText = context ? chalk_1["default"].gray(JSON.stringify(context)) : '';
         var outputText = [timestamp, levelText, nameText, messageText, contextText].filter(function (s) { return s; }).join(' ') + '\n';
         if (level === __1.LogLevel.Error)
             this.errOut.write(outputText);

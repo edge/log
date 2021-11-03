@@ -57,7 +57,7 @@ export class StdioAdaptor implements Adaptor {
     const levelText = colors.background(` ${logLevelAbbrs[level]} `)
     const nameText = name ? colors.foreground(`[${name}]`) : ''
     const messageText = chalk.white(message)
-    const contextText = context ? chalk.bgGrey(JSON.stringify(context)) : ''
+    const contextText = context ? chalk.gray(JSON.stringify(context)) : ''
     const outputText = [timestamp, levelText, nameText, messageText, contextText].filter(s => s).join(' ') + '\n'
 
     if (level === LogLevel.Error) this.errOut.write(outputText)
