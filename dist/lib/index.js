@@ -60,6 +60,8 @@ function disambiguate(message, context) {
     return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
 }
 function mergeContexts(context, into) {
+    if (context === undefined)
+        return;
     var serialized = serialize(context);
     switch (typeof serialized) {
         case 'string':

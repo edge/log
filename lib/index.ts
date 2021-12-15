@@ -41,6 +41,7 @@ function mergeContexts(
   context: LogContext | undefined,
   into: Record<string, unknown>
 ): Record<string, unknown> | undefined {
+  if (context === undefined) return
   const serialized = serialize(context)
   switch (typeof serialized) {
   case 'string':
