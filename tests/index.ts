@@ -27,7 +27,8 @@ const messages: [LogContext, LogContext?][] = [
   [4],
   [false],
   [new Date()],
-  [new Error('nothing is wrong, just checking')]
+  [new Error('nothing is wrong, just checking')],
+  ['still nothing wrong', new Error('just checking again')]
 ]
 
 messages.forEach(([msg, ctx]) => {

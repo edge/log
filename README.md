@@ -296,6 +296,34 @@ const stdoutOnly = new StdioAdaptor()
 const stderrToo = new StdioAdaptor(true)
 ```
 
+#### Logging errors
+
+`StdioAdaptor` handles error logging differently based on how the error is supplied.
+
+If the error is provided as the message (first argument) or context (second argument) then it will be presented as a stack in log output. For example:
+
+```js
+log.error(new Error("some error"))
+// 14:34:12.992  ERR  Error: some error
+// Error: some error
+//     at Object.<anonymous> (***/tests/index.ts:30:4)
+//     [...etc]
+
+log.error("my msg", new Error("some error"))
+// 14:34:12.992  ERR  my msg
+// Error: some error
+//     at Object.<anonymous> (***/tests/index.ts:30:4)
+//     [...etc]
+```
+
+However, if an error is provided as _a property of_ the context, it will be presented as an ordinary object:
+
+```js
+const err = new Error("some error")
+log.error("my msg", { err })
+// 14:38:08.031  ERR  my msg {"err":{"message":"some error","name":"Error","stack":"Error: some error\n    at Object.<anonymous> (***/tests/index.ts:30:4) [...etc]"}}
+```
+
 ### Using multiple adaptors
 
 You can easily use multiple adaptors. You can either pass them in at instantiation:
