@@ -43,6 +43,13 @@ export class StdioAdaptor implements Adaptor {
     this.writeToLog(LogLevel.Error, message, log.name, context)
   }
 
+  private isError(context?: Record<string, unknown>): boolean {
+    return context !== undefined
+      && context.message !== undefined
+      && context.name !== undefined
+      && context.stack !== undefined
+  }
+
   private humanTimestamp(d: Date): string {
     const h = d.getHours().toString().padStart(2, '0')
     const m = d.getMinutes().toString().padStart(2, '0')
@@ -57,7 +64,11 @@ export class StdioAdaptor implements Adaptor {
     const levelText = colors.background(` ${logLevelAbbrs[level]} `)
     const nameText = name ? colors.foreground(`[${name}]`) : ''
     const messageText = chalk.white(message)
-    const contextText = context ? chalk.gray(JSON.stringify(context)) : ''
+
+    let contextText = ''
+    if (this.isError(context)) contextText = '\n' + (context as { stack: string }).stack
+    else contextText = context ? chalk.gray(JSON.stringify(context)) : ''
+
     const outputText = [timestamp, levelText, nameText, messageText, contextText].filter(s => s).join(' ') + '\n'
 
     if (level === LogLevel.Error) this.errOut.write(outputText)
