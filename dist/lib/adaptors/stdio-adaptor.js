@@ -34,6 +34,12 @@ var StdioAdaptor = (function () {
     StdioAdaptor.prototype.error = function (log, message, context) {
         this.writeToLog(__1.LogLevel.Error, message, log.name, context);
     };
+    StdioAdaptor.prototype.isError = function (context) {
+        return context !== undefined
+            && context.message !== undefined
+            && context.name !== undefined
+            && context.stack !== undefined;
+    };
     StdioAdaptor.prototype.humanTimestamp = function (d) {
         var h = d.getHours().toString().padStart(2, '0');
         var m = d.getMinutes().toString().padStart(2, '0');
@@ -47,7 +53,11 @@ var StdioAdaptor = (function () {
         var levelText = colors.background(" " + logLevelAbbrs[level] + " ");
         var nameText = name ? colors.foreground("[" + name + "]") : '';
         var messageText = chalk_1["default"].white(message);
-        var contextText = context ? chalk_1["default"].gray(JSON.stringify(context)) : '';
+        var contextText = '';
+        if (this.isError(context))
+            contextText = '\n' + context.stack;
+        else
+            contextText = context ? chalk_1["default"].gray(JSON.stringify(context)) : '';
         var outputText = [timestamp, levelText, nameText, messageText, contextText].filter(function (s) { return s; }).join(' ') + '\n';
         if (level === __1.LogLevel.Error)
             this.errOut.write(outputText);

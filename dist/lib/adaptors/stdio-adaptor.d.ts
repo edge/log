@@ -7,6 +7,7 @@ export declare class StdioAdaptor implements Adaptor {
     info(log: Log, message: string, context?: Record<string, unknown>): void;
     warn(log: Log, message: string, context?: Record<string, unknown>): void;
     error(log: Log, message: string, context?: Record<string, unknown>): void;
+    private isError;
     private humanTimestamp;
     private writeToLog;
 }
