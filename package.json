@@ -1,6 +1,6 @@
 {
   "name": "@edge/log",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Logging utility library with powerful adaptor middleware",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Edge Network <core@edge.network>",
