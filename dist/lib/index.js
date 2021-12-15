@@ -46,37 +46,68 @@ function LogLevelFromString(level) {
 exports.LogLevelFromString = LogLevelFromString;
 function disambiguate(message, context) {
     if (typeof message === 'string')
-        return [message, context];
+        return [message, serialize(context)];
     if (typeof message === 'number')
-        return ["" + message, context];
+        return ["" + message, serialize(context)];
     if (typeof message === 'boolean')
-        return ["" + message, context];
+        return ["" + message, serialize(context)];
     if (message === null)
-        return ['null', context];
+        return ['null', serialize(context)];
     if (message instanceof Date)
-        return [message.toString(), context];
+        return [message.toString(), serialize(context)];
     if (message instanceof Error)
-        return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
+        return [message.toString(), mergeContexts(message, mergeContexts(context, {}) || {})];
     return ['', mergeContexts(message, mergeContexts(context, {}) || {})];
 }
 function mergeContexts(context, into) {
+    var serialized = serialize(context);
+    switch (typeof serialized) {
+        case 'string':
+        case 'boolean':
+        case 'number':
+            into._ = serialized.toString();
+            break;
+        case 'object':
+            if (serialized === null) {
+                into._ = null;
+                break;
+            }
+            Object.keys(serialized).forEach(function (k) {
+                into[k] = serialized[k];
+            });
+            break;
+        default:
+            into._ = context;
+    }
+    return Object.keys(into).length ? into : undefined;
+}
+function serialize(context) {
     switch (typeof context) {
         case 'string':
         case 'boolean':
         case 'number':
-            into._ = context.toString();
-            break;
+            return context.toString();
         case 'object':
             if (context instanceof Error) {
-                into.error = context.toString();
-                if (context.stack !== undefined)
-                    into.stack = context.stack;
+                return {
+                    message: context.message,
+                    name: context.name,
+                    stack: context.stack
+                };
             }
-            else if (context !== null)
-                into = __assign(__assign({}, into), context);
-            break;
+            else if (context instanceof Date)
+                return context.toString();
+            else if (context !== null) {
+                var newContext_1 = {};
+                Object.keys(context).forEach(function (k) {
+                    newContext_1[k] = serialize(context[k]);
+                });
+                return newContext_1;
+            }
+            return context;
+        default:
+            return context;
     }
-    return Object.keys(into).length ? into : undefined;
 }
 var Log = (function () {
     function Log(adaptors, name, level, context) {
