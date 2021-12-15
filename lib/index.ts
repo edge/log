@@ -16,6 +16,8 @@ export type LogContext = Record<string, unknown> | Error | Date | boolean | null
 
 export enum LogLevel { Debug, Info, Warn, Error }
 
+export type SerializedLogContext = Record<string, unknown> | boolean | null | number | string
+
 export function LogLevelFromString(level: string): LogLevel {
   const levelLower = level.toLowerCase()
   if (levelLower === 'debug') return LogLevel.Debug
@@ -26,12 +28,12 @@ export function LogLevelFromString(level: string): LogLevel {
 }
 
 function disambiguate(message: LogContext, context: LogContext | undefined): [string, LogContext?] {
-  if (typeof message === 'string') return [message, context]
-  if (typeof message === 'number') return [`${message}`, context]
-  if (typeof message === 'boolean') return [`${message}`, context]
-  if (message === null) return ['null', context]
-  if (message instanceof Date) return [message.toString(), context]
-  if (message instanceof Error) return ['', mergeContexts(message, mergeContexts(context, {}) || {})]
+  if (typeof message === 'string') return [message, serialize(context)]
+  if (typeof message === 'number') return [`${message}`, serialize(context)]
+  if (typeof message === 'boolean') return [`${message}`, serialize(context)]
+  if (message === null) return ['null', serialize(context)]
+  if (message instanceof Date) return [message.toString(), serialize(context)]
+  if (message instanceof Error) return [message.toString(), mergeContexts(message, mergeContexts(context, {}) || {})]
   return ['', mergeContexts(message, mergeContexts(context, {}) || {})]
 }
 
@@ -39,23 +41,58 @@ function mergeContexts(
   context: LogContext | undefined,
   into: Record<string, unknown>
 ): Record<string, unknown> | undefined {
-  switch (typeof context) {
+  const serialized = serialize(context)
+  switch (typeof serialized) {
   case 'string':
   case 'boolean':
   case 'number':
-    into._ = context.toString()
+    into._ = serialized.toString()
     break
   case 'object':
-    if (context instanceof Error) {
-      into.error = context.toString()
-      if (context.stack !== undefined) into.stack = context.stack
+    if (serialized === null) {
+      into._ = null
+      break
     }
-    else if (context !== null) into = { ...into, ...context }
+    Object.keys(serialized).forEach(k => {
+      into[k] = serialized[k]
+    })
     break
+  default:
+    into._ = context
   }
 
   return Object.keys(into).length ? into : undefined
 }
+
+function serialize(context: LogContext | undefined): SerializedLogContext | undefined {
+  switch (typeof context) {
+  case 'string':
+  case 'boolean':
+  case 'number':
+    return context.toString()
+  case 'object':
+    if (context instanceof Error) {
+      return {
+        message: context.message,
+        name: context.name,
+        stack: context.stack
+      }
+    }
+    else if (context instanceof Date) return context.toString()
+    else if (context !== null) {
+      // assuming in good faith that the object contains serializable values
+      const newContext = <Record<string, unknown>>{}
+      Object.keys(context).forEach(k => {
+        newContext[k] = serialize(context[k] as LogContext | undefined)
+      })
+      return newContext
+    }
+    return context
+  default:
+    return context
+  }
+}
+
 
 export class Log {
   public readonly name?: string
