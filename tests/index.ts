@@ -42,5 +42,6 @@ messages.forEach(([msg, ctx]) => {
     log.info(msg)
     log.warn(msg)
     log.error(msg)
+    log.error('msg is context', { msg })
   }
 })
