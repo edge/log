@@ -66,7 +66,7 @@ export class StdioAdaptor implements Adaptor {
     const messageText = chalk.white(message)
 
     let contextText = ''
-    if (this.isError(context)) contextText = '\n' + (context as { stack: string }).stack
+    if (this.isError(context)) contextText = '\n' + chalk.gray((context as { stack: string }).stack)
     else contextText = context ? chalk.gray(JSON.stringify(context)) : ''
 
     const outputText = [timestamp, levelText, nameText, messageText, contextText].filter(s => s).join(' ') + '\n'

@@ -55,7 +55,7 @@ var StdioAdaptor = (function () {
         var messageText = chalk_1["default"].white(message);
         var contextText = '';
         if (this.isError(context))
-            contextText = '\n' + context.stack;
+            contextText = '\n' + chalk_1["default"].gray(context.stack);
         else
             contextText = context ? chalk_1["default"].gray(JSON.stringify(context)) : '';
         var outputText = [timestamp, levelText, nameText, messageText, contextText].filter(function (s) { return s; }).join(' ') + '\n';
