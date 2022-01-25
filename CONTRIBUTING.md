@@ -76,7 +76,7 @@ Please don't include more than one change in each patch. If your commit message 
 
 ### Target branch
 
-The development branch for this project is **develop | master**. `[DELETE AS APPROPRIATE ALONG WITH THIS COMMENT]`
+The development branch for this project is **master**.
 
 Please ensure that your contributions are based on this branch and that your Pull Request specifies it as the target branch.
 
