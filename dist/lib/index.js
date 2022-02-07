@@ -172,14 +172,17 @@ var Log = (function () {
     };
     Log.prototype.extend = function (name, context) {
         if (typeof name === 'string' && context) {
-            return new Log(this.adaptors, this.name + ":" + name, this.level, this.mergeContexts(context));
+            return new Log(this.adaptors, [this.name, name].filter(Boolean).join(':'), this.level, this.mergeContexts(context));
         }
-        else if (typeof name === 'string')
-            return new Log(this.adaptors, this.name + ":" + name, this.level, this.context);
-        else if (name)
+        else if (typeof name === 'string') {
+            return new Log(this.adaptors, [this.name, name].filter(Boolean).join(':'), this.level, this.context);
+        }
+        else if (name) {
             return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name));
-        else
+        }
+        else {
             return new Log(this.adaptors, this.name, this.level, this.context);
+        }
     };
     Log.prototype.mergeContexts = function (context) {
         return mergeContexts(context, __assign({}, this.context));

@@ -188,12 +188,18 @@ export class Log {
     if (typeof name === 'string' && context) {
       return new Log(
         this.adaptors,
-        `${this.name}:${name}`,
+        [this.name, name].filter(Boolean).join(':'),
         this.level, this.mergeContexts(context))
     }
-    else if (typeof name === 'string') return new Log(this.adaptors, `${this.name}:${name}`, this.level, this.context)
-    else if (name) return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name))
-    else return new Log(this.adaptors, this.name, this.level, this.context)
+    else if (typeof name === 'string') {
+      return new Log(this.adaptors, [this.name, name].filter(Boolean).join(':'), this.level, this.context)
+    }
+    else if (name) {
+      return new Log(this.adaptors, this.name, this.level, this.mergeContexts(name))
+    }
+    else {
+      return new Log(this.adaptors, this.name, this.level, this.context)
+    }
   }
 
   private mergeContexts(context?: LogContext): Record<string, unknown> | undefined {
