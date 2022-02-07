@@ -17,7 +17,7 @@
     "test": "ts-node tests/index.ts"
   },
   "devDependencies": {
-    "@edge/eslint-config-typescript": "^0.1.1",
+    "@edge/eslint-config-typescript": "^0.1.4",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.32.0",
     "eslint": "^7.32.0",
