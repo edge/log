@@ -54,7 +54,7 @@ exports.ElasticAdaptor = void 0;
 var superagent_1 = __importDefault(require("superagent"));
 var ElasticAdaptor = (function () {
     function ElasticAdaptor(config, options) {
-        this.i = undefined;
+        this.interval = undefined;
         if (!config.apiKey && !config.username) {
             throw new Error('API key or username/password required');
         }
@@ -130,12 +130,12 @@ var ElasticAdaptor = (function () {
         });
     };
     ElasticAdaptor.prototype.startCycle = function () {
-        this.i = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000);
+        this.interval = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000);
     };
     ElasticAdaptor.prototype.stopCycle = function () {
-        if (this.i !== undefined)
-            clearInterval(this.i);
-        this.i = undefined;
+        if (this.interval !== undefined)
+            clearInterval(this.interval);
+        this.interval = undefined;
     };
     return ElasticAdaptor;
 }());

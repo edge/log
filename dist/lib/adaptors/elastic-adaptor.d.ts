@@ -15,7 +15,7 @@ export declare type Options = {
 };
 export declare class ElasticAdaptor implements Adaptor {
     private config;
-    private i;
+    private interval;
     private options;
     private queue;
     constructor(config: Config, options?: Options);

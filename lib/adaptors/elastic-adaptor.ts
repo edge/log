@@ -31,7 +31,7 @@ export type Options = {
 
 export class ElasticAdaptor implements Adaptor {
   private config: Config
-  private i: NodeJS.Timer | undefined = undefined
+  private interval: NodeJS.Timer | undefined = undefined
   private options: Options
   private queue: Record<string, unknown>[]
 
@@ -114,11 +114,11 @@ export class ElasticAdaptor implements Adaptor {
   }
 
   startCycle(): void {
-    this.i = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000)
+    this.interval = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000)
   }
 
   stopCycle(): void {
-    if (this.i !== undefined) clearInterval(this.i)
-    this.i = undefined
+    if (this.interval !== undefined) clearInterval(this.interval)
+    this.interval = undefined
   }
 }
