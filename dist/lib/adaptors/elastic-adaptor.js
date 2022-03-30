@@ -54,36 +54,58 @@ exports.ElasticAdaptor = void 0;
 var superagent_1 = __importDefault(require("superagent"));
 var ElasticAdaptor = (function () {
     function ElasticAdaptor(config, options) {
+        this.i = undefined;
         if (!config.apiKey && !config.username) {
             throw new Error('API key or username/password required');
         }
         this.config = config;
         this.options = options || {};
+        this.queue = [];
+        if (this.config.bulkCycle !== false)
+            this.startCycle();
     }
     ElasticAdaptor.prototype.debug = function (log, message, context) {
-        this.send(log, 'debug', message, context);
+        this.log(log, 'debug', message, context);
     };
     ElasticAdaptor.prototype.info = function (log, message, context) {
-        this.send(log, 'info', message, context);
+        this.log(log, 'info', message, context);
     };
     ElasticAdaptor.prototype.warn = function (log, message, context) {
-        this.send(log, 'warn', message, context);
+        this.log(log, 'warn', message, context);
     };
     ElasticAdaptor.prototype.error = function (log, message, context) {
-        this.send(log, 'error', message, context);
+        this.log(log, 'error', message, context);
     };
-    ElasticAdaptor.prototype.send = function (log, level, message, context) {
+    ElasticAdaptor.prototype.log = function (log, level, message, context) {
+        var timestamp = (new Date()).toISOString();
+        var data = __assign({ '@timestamp': timestamp, name: log.name, level: level, message: message, context: context }, this.options);
+        if (this.config.bulkCycle === false)
+            this.send('_doc', data);
+        else
+            this.queue.push(data);
+    };
+    ElasticAdaptor.prototype.postQueue = function () {
+        if (this.queue.length === 0)
+            return;
+        var docs = this.queue;
+        this.queue = [];
+        var create = JSON.stringify({ create: {} });
+        var data = docs.reduce(function (s, doc) {
+            s.push(create, JSON.stringify(doc));
+            return s;
+        }, []).join('\n');
+        this.send('_bulk', data + '\n');
+    };
+    ElasticAdaptor.prototype.send = function (endpoint, data) {
         return __awaiter(this, void 0, void 0, function () {
-            var timestamp, data, req, auth, err_1;
+            var url, req, auth, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        timestamp = (new Date()).toISOString();
-                        data = __assign({ '@timestamp': timestamp, name: log.name, level: level, message: message, context: context }, this.options);
-                        _a.label = 1;
-                    case 1:
-                        _a.trys.push([1, 3, , 4]);
-                        req = superagent_1["default"].post(this.config.host + "/" + this.config.dataStream + "/_doc").send(data);
+                        _a.trys.push([0, 2, , 3]);
+                        url = this.config.host + "/" + this.config.dataStream + "/" + endpoint;
+                        req = endpoint === '_bulk' ? superagent_1["default"].put(url) : superagent_1["default"].post(url);
+                        req.set('Content-Type', 'application/json').send(data);
                         if (this.config.apiKey)
                             req.set('Authorization', "apikey " + this.config.apiKey);
                         else {
@@ -95,17 +117,25 @@ var ElasticAdaptor = (function () {
                         else if (this.config.cert === false)
                             req.disableTLSCerts();
                         return [4, req];
-                    case 2:
+                    case 1:
                         _a.sent();
-                        return [3, 4];
-                    case 3:
+                        return [3, 3];
+                    case 2:
                         err_1 = _a.sent();
                         console.error(err_1);
-                        return [3, 4];
-                    case 4: return [2];
+                        return [3, 3];
+                    case 3: return [2];
                 }
             });
         });
+    };
+    ElasticAdaptor.prototype.startCycle = function () {
+        this.i = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000);
+    };
+    ElasticAdaptor.prototype.stopCycle = function () {
+        if (this.i !== undefined)
+            clearInterval(this.i);
+        this.i = undefined;
     };
     return ElasticAdaptor;
 }());
