@@ -7,6 +7,7 @@ import { Adaptor, Log } from '..'
 
 export type Config = {
   apiKey?: string
+  bulkCycle?: number | false
   cert?: string | false
   dataStream: string
   host: string
@@ -22,7 +23,9 @@ export type Options = {
 
 export class ElasticAdaptor implements Adaptor {
   private config: Config
+  private i: NodeJS.Timer | undefined = undefined
   private options: Options
+  private queue: Record<string, unknown>[]
 
   constructor(config: Config, options?: Options) {
     if (!config.apiKey && !config.username) {
@@ -30,25 +33,28 @@ export class ElasticAdaptor implements Adaptor {
     }
     this.config = config
     this.options = options || {}
+    this.queue = []
+
+    if (this.config.bulkCycle !== false) this.startCycle()
   }
 
   debug(log: Log, message: string, context?: Record<string, unknown>): void {
-    this.send(log, 'debug', message, context)
+    this.log(log, 'debug', message, context)
   }
 
   info(log: Log, message: string, context?: Record<string, unknown>): void {
-    this.send(log, 'info', message, context)
+    this.log(log, 'info', message, context)
   }
 
   warn(log: Log, message: string, context?: Record<string, unknown>): void {
-    this.send(log, 'warn', message, context)
+    this.log(log, 'warn', message, context)
   }
 
   error(log: Log, message: string, context?: Record<string, unknown>): void {
-    this.send(log, 'error', message, context)
+    this.log(log, 'error', message, context)
   }
 
-  private async send(log: Log, level: string, message: string, context?: Record<string, unknown>): Promise<void> {
+  private log(log: Log, level: string, message: string, context?: Record<string, unknown>) {
     const timestamp = (new Date()).toISOString()
     const data = {
       '@timestamp': timestamp,
@@ -58,9 +64,30 @@ export class ElasticAdaptor implements Adaptor {
       context,
       ...this.options
     }
+    if (this.config.bulkCycle === false) this.send('_doc', data)
+    else this.queue.push(data)
+  }
 
+  private postQueue() {
+    if (this.queue.length === 0) return
+    const docs = this.queue
+    this.queue = []
+
+    const create = JSON.stringify({ create: {} })
+    const data = docs.reduce((s, doc) => {
+      s.push(create, JSON.stringify(doc))
+      return s
+    }, <string[]>[]).join('\n')
+
+    this.send('_bulk', data + '\n')
+  }
+
+  private async send(endpoint: string, data: string | Record<string, unknown>) {
     try {
-      const req = superagent.post(`${this.config.host}/${this.config.dataStream}/_doc`).send(data)
+      const url = `${this.config.host}/${this.config.dataStream}/${endpoint}`
+      const req = endpoint === '_bulk' ? superagent.put(url) : superagent.post(url)
+
+      req.set('Content-Type', 'application/json').send(data)
 
       if (this.config.apiKey) req.set('Authorization', `apikey ${this.config.apiKey}`)
       else {
@@ -76,5 +103,14 @@ export class ElasticAdaptor implements Adaptor {
     catch (err) {
       console.error(err)
     }
+  }
+
+  startCycle(): void {
+    this.i = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000)
+  }
+
+  stopCycle(): void {
+    if (this.i !== undefined) clearInterval(this.i)
+    this.i = undefined
   }
 }
