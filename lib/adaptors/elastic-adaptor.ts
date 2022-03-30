@@ -5,7 +5,7 @@
 import superagent from 'superagent'
 import { Adaptor, Log } from '..'
 
-export type ElasticConfig = {
+export type Config = {
   apiKey?: string
   cert?: string | false
   dataStream: string
@@ -21,10 +21,10 @@ export type Options = {
 }
 
 export class ElasticAdaptor implements Adaptor {
-  private config: ElasticConfig
+  private config: Config
   private options: Options
 
-  constructor(config: ElasticConfig, options?: Options) {
+  constructor(config: Config, options?: Options) {
     if (!config.apiKey && !config.username) {
       throw new Error('API key or username/password required')
     }

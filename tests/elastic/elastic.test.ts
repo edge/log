@@ -1,10 +1,10 @@
 import dotenv from 'dotenv'
-import { ElasticAdaptor, ElasticConfig, Options } from '../../lib/adaptors/elastic-adaptor'
+import { Config, ElasticAdaptor, Options } from '../../lib/adaptors/elastic-adaptor'
 import { Log, StdioAdaptor } from '../../lib'
 
 dotenv.config()
 
-const config: ElasticConfig = {
+const config: Config = {
   apiKey: process.env.ELASTIC_API_KEY,
   cert: false,
   dataStream: process.env.ELASTIC_DATA_STREAM || 'log-test-local',
