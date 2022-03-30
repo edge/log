@@ -7,7 +7,15 @@ import { Adaptor, Log } from '..'
 
 export type Config = {
   apiKey?: string
+  /**
+   * Bulk cycle controls how frequently logs are sent to Elasticsearch (default 1s).
+   * Set to false to disable bulk send, causing every log to be sent individually.
+   */
   bulkCycle?: number | false
+  /**
+   * CA certificate. This can be set to allow connection using a self-signed certificate.
+   * Set to false to disable certificate verification.
+   */
   cert?: string | false
   dataStream: string
   host: string
