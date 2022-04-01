@@ -8,33 +8,32 @@ import { Adaptor, Log, ServiceInfo } from '..'
 export type Config = {
   apiKey?: string
   /**
-   * Bulk cycle controls how frequently logs are sent to Elasticsearch (default 1s).
+   * Bulk cycle controls how frequently logs are sent to NewRelic (default 1s).
    * Set to false to disable bulk send, causing every log to be sent individually.
    */
   bulkCycle?: number | false
-  /**
-   * CA certificate. This can be set to allow connection using a self-signed certificate.
-   * Set to false to disable certificate verification.
-   */
-  cert?: string | false
-  dataStream: string
-  host: string
-  password?: string
+  gzip?: boolean
   timeout?: number
-  username?: string
+  /**
+   * URL to Headerless Log API, excluding API key.
+   * The EU endpoint is used by default if this is not specified.
+   *
+   * See https://docs.newrelic.com/docs/logs/log-api/introduction-log-api/#endpoint
+   */
+  url?: string
 }
 
-export class ElasticAdaptor implements Adaptor {
+export class NewRelicAdaptor implements Adaptor {
   private config: Config
   private interval: NodeJS.Timer | undefined = undefined
   private serviceInfo: ServiceInfo
   private queue: Record<string, unknown>[]
 
   constructor(config: Config, serviceInfo?: ServiceInfo) {
-    if (!config.apiKey && !config.username) {
-      throw new Error('API key or username/password required')
+    this.config = {...config}
+    if (!this.config.url) {
+      this.config.url = 'https://log-api.eu.newrelic.com/log/v1'
     }
-    this.config = config
     this.serviceInfo = serviceInfo || {}
     this.queue = []
 
@@ -60,47 +59,51 @@ export class ElasticAdaptor implements Adaptor {
   private log(log: Log, level: string, message: string, context?: Record<string, unknown>) {
     const timestamp = (new Date()).toISOString()
     const data = {
-      '@timestamp': timestamp,
+      timestamp,
       name: log.name,
       level,
       message,
-      context,
-      ...this.serviceInfo
+      context
     }
-    if (this.config.bulkCycle === false) this.send('_doc', data)
+    if (this.config.bulkCycle === false) this.send(data)
     else this.queue.push(data)
   }
 
   private postQueue() {
     if (this.queue.length === 0) return
-    const docs = this.queue
+    const logs = this.queue
     this.queue = []
-
-    const create = JSON.stringify({ create: {} })
-    const data = docs.reduce((s, doc) => {
-      s.push(create, JSON.stringify(doc))
-      return s
-    }, <string[]>[]).join('\n')
-
-    this.send('_bulk', data + '\n')
+    this.send(logs)
   }
 
-  private async send(endpoint: string, data: string | Record<string, unknown>) {
-    try {
-      const url = `${this.config.host}/${this.config.dataStream}/${endpoint}`
-      const req = endpoint === '_bulk' ? superagent.put(url) : superagent.post(url)
-
-      req.timeout(this.config.timeout || 5000).set('Content-Type', 'application/json').send(data)
-
-      if (this.config.apiKey) req.set('Authorization', `apikey ${this.config.apiKey}`)
-      else {
-        const auth = Buffer.from(`${this.config.username}:${this.config.password}`, 'utf-8').toString('base64')
-        req.set('Authorization', `basic ${auth}`)
+  private async send(data: Record<string, unknown> | Record<string, unknown>[]) {
+    let reqData: unknown
+    if (data instanceof Array) {
+      reqData = [{
+        common: {
+          attributes: { ...this.serviceInfo }
+        },
+        logs: data.map(d => {
+          const { timestamp, message, ...attributes } = d
+          return { timestamp, message, attributes }
+        })
+      }]
+    }
+    else {
+      reqData = {
+        ...data,
+        ...this.serviceInfo
       }
+    }
 
-      if (this.config.cert) req.ca(this.config.cert)
-      else if (this.config.cert === false) req.disableTLSCerts()
+    try {
+      const req = superagent.post(this.config.url as string)
+        .timeout(this.config.timeout || 5000)
+        .set({ 'Api-Key': this.config.apiKey })
+        .set('Content-Type', 'application/json')
+        .send(JSON.stringify(reqData))
 
+      // TODO support gzip
       await req
     }
     catch (err) {
