@@ -1,5 +1,9 @@
+export { ElasticAdaptor } from './adaptors/elastic-adaptor';
 export { LogtailAdaptor } from './adaptors/logtail-adaptor';
 export { StdioAdaptor } from './adaptors/stdio-adaptor';
+import * as elastic from './adaptors/elastic-adaptor';
+export declare type ElasticConfig = elastic.Config;
+export declare type ElasticOptions = elastic.Options;
 export declare type Adaptor = {
     debug: (log: Log, message: string, context?: Record<string, unknown>) => void;
     info: (log: Log, message: string, context?: Record<string, unknown>) => void;

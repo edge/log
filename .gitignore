@@ -1,3 +1,4 @@
+.env
 dist/**/*.tsbuildinfo
 dist/tests
 node_modules
