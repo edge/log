@@ -1,6 +1,6 @@
 {
   "name": "@edge/log",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Logging utility library with powerful adaptor middleware",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Edge Network <core@edge.network>",
@@ -15,7 +15,8 @@
     "lint": "eslint --ext .ts lib",
     "lint:fix": "eslint --fix --ext .ts lib",
     "test": "ts-node tests/index.ts",
-    "test:elastic": "ts-node tests/elastic/elastic.test.ts"
+    "test:elastic": "ts-node tests/elastic/elastic.test.ts",
+    "test:newrelic": "ts-node tests/newrelic/newrelic.test.ts"
   },
   "devDependencies": {
     "@edge/eslint-config-typescript": "^0.1.4",

@@ -2,14 +2,11 @@ import { Adaptor, Log, ServiceInfo } from '..';
 export declare type Config = {
     apiKey?: string;
     bulkCycle?: number | false;
-    cert?: string | false;
-    dataStream: string;
-    host: string;
-    password?: string;
+    gzip?: boolean;
     timeout?: number;
-    username?: string;
+    url?: string;
 };
-export declare class ElasticAdaptor implements Adaptor {
+export declare class NewRelicAdaptor implements Adaptor {
     private config;
     private interval;
     private serviceInfo;

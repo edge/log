@@ -1,6 +1,6 @@
 import dotenv from 'dotenv'
-import { Config, ElasticAdaptor, Options } from '../../lib/adaptors/elastic-adaptor'
-import { Log, StdioAdaptor } from '../../lib'
+import { Config, ElasticAdaptor } from '../../lib/adaptors/elastic-adaptor'
+import { Log, ServiceInfo, StdioAdaptor } from '../../lib'
 
 dotenv.config()
 
@@ -11,7 +11,7 @@ const config: Config = {
   host: process.env.ELASTIC_HOST || 'https://localhost:9200'
 }
 
-const options: Options = {
+const serviceInfo: ServiceInfo = {
   network: process.env.NETWORK || undefined,
   serviceId: process.env.SERVICE_ID || undefined,
   serviceType: process.env.SERVICE_TYPE || undefined
@@ -19,10 +19,12 @@ const options: Options = {
 
 let log = new Log()
 log.use(new StdioAdaptor())
-log.use(new ElasticAdaptor(config, options))
+const elastic = new ElasticAdaptor(config, serviceInfo)
+log.use(elastic)
 
 if (process.env.NAME) {
   log = log.extend(process.env.NAME)
 }
 
 log.info(process.env.MESSAGE || 'Hello from elastic.test.ts!')
+setTimeout(() => elastic.stopCycle(), 2000)
