@@ -18,11 +18,13 @@ var __createBinding = (this && this.__createBinding) || (Object.create ? (functi
     o[k2] = m[k];
 }));
 exports.__esModule = true;
-exports.Log = exports.LogLevelFromString = exports.LogLevel = exports.StdioAdaptor = exports.LogtailAdaptor = exports.ElasticAdaptor = void 0;
+exports.Log = exports.LogLevelFromString = exports.LogLevel = exports.StdioAdaptor = exports.NewRelicAdaptor = exports.LogtailAdaptor = exports.ElasticAdaptor = void 0;
 var elastic_adaptor_1 = require("./adaptors/elastic-adaptor");
 __createBinding(exports, elastic_adaptor_1, "ElasticAdaptor");
 var logtail_adaptor_1 = require("./adaptors/logtail-adaptor");
 __createBinding(exports, logtail_adaptor_1, "LogtailAdaptor");
+var newrelic_adaptor_1 = require("./adaptors/newrelic-adaptor");
+__createBinding(exports, newrelic_adaptor_1, "NewRelicAdaptor");
 var stdio_adaptor_1 = require("./adaptors/stdio-adaptor");
 __createBinding(exports, stdio_adaptor_1, "StdioAdaptor");
 var LogLevel;

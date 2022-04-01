@@ -46,97 +46,117 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 exports.__esModule = true;
-exports.ElasticAdaptor = void 0;
+exports.NewRelicAdaptor = void 0;
 var superagent_1 = __importDefault(require("superagent"));
-var ElasticAdaptor = (function () {
-    function ElasticAdaptor(config, serviceInfo) {
+var NewRelicAdaptor = (function () {
+    function NewRelicAdaptor(config, serviceInfo) {
         this.interval = undefined;
-        if (!config.apiKey && !config.username) {
-            throw new Error('API key or username/password required');
+        this.config = __assign({}, config);
+        if (!this.config.url) {
+            this.config.url = 'https://log-api.eu.newrelic.com/log/v1';
         }
-        this.config = config;
         this.serviceInfo = serviceInfo || {};
         this.queue = [];
         if (this.config.bulkCycle !== false)
             this.startCycle();
     }
-    ElasticAdaptor.prototype.debug = function (log, message, context) {
+    NewRelicAdaptor.prototype.debug = function (log, message, context) {
         this.log(log, 'debug', message, context);
     };
-    ElasticAdaptor.prototype.info = function (log, message, context) {
+    NewRelicAdaptor.prototype.info = function (log, message, context) {
         this.log(log, 'info', message, context);
     };
-    ElasticAdaptor.prototype.warn = function (log, message, context) {
+    NewRelicAdaptor.prototype.warn = function (log, message, context) {
         this.log(log, 'warn', message, context);
     };
-    ElasticAdaptor.prototype.error = function (log, message, context) {
+    NewRelicAdaptor.prototype.error = function (log, message, context) {
         this.log(log, 'error', message, context);
     };
-    ElasticAdaptor.prototype.log = function (log, level, message, context) {
+    NewRelicAdaptor.prototype.log = function (log, level, message, context) {
         var timestamp = (new Date()).toISOString();
-        var data = __assign({ '@timestamp': timestamp, name: log.name, level: level, message: message, context: context }, this.serviceInfo);
+        var data = {
+            timestamp: timestamp,
+            name: log.name,
+            level: level,
+            message: message,
+            context: context
+        };
         if (this.config.bulkCycle === false)
-            this.send('_doc', data);
+            this.send(data);
         else
             this.queue.push(data);
     };
-    ElasticAdaptor.prototype.postQueue = function () {
+    NewRelicAdaptor.prototype.postQueue = function () {
         if (this.queue.length === 0)
             return;
-        var docs = this.queue;
+        var logs = this.queue;
         this.queue = [];
-        var create = JSON.stringify({ create: {} });
-        var data = docs.reduce(function (s, doc) {
-            s.push(create, JSON.stringify(doc));
-            return s;
-        }, []).join('\n');
-        this.send('_bulk', data + '\n');
+        this.send(logs);
     };
-    ElasticAdaptor.prototype.send = function (endpoint, data) {
+    NewRelicAdaptor.prototype.send = function (data) {
         return __awaiter(this, void 0, void 0, function () {
-            var url, req, auth, err_1;
+            var reqData, req, err_1;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
-                        url = this.config.host + "/" + this.config.dataStream + "/" + endpoint;
-                        req = endpoint === '_bulk' ? superagent_1["default"].put(url) : superagent_1["default"].post(url);
-                        req.timeout(this.config.timeout || 5000).set('Content-Type', 'application/json').send(data);
-                        if (this.config.apiKey)
-                            req.set('Authorization', "apikey " + this.config.apiKey);
-                        else {
-                            auth = Buffer.from(this.config.username + ":" + this.config.password, 'utf-8').toString('base64');
-                            req.set('Authorization', "basic " + auth);
+                        if (data instanceof Array) {
+                            reqData = [{
+                                    common: {
+                                        attributes: __assign({}, this.serviceInfo)
+                                    },
+                                    logs: data.map(function (d) {
+                                        var timestamp = d.timestamp, message = d.message, attributes = __rest(d, ["timestamp", "message"]);
+                                        return { timestamp: timestamp, message: message, attributes: attributes };
+                                    })
+                                }];
                         }
-                        if (this.config.cert)
-                            req.ca(this.config.cert);
-                        else if (this.config.cert === false)
-                            req.disableTLSCerts();
-                        return [4, req];
+                        else {
+                            reqData = __assign(__assign({}, data), this.serviceInfo);
+                        }
+                        _a.label = 1;
                     case 1:
-                        _a.sent();
-                        return [3, 3];
+                        _a.trys.push([1, 3, , 4]);
+                        req = superagent_1["default"].post(this.config.url)
+                            .timeout(this.config.timeout || 5000)
+                            .set({ 'Api-Key': this.config.apiKey })
+                            .set('Content-Type', 'application/json')
+                            .send(JSON.stringify(reqData));
+                        return [4, req];
                     case 2:
+                        _a.sent();
+                        return [3, 4];
+                    case 3:
                         err_1 = _a.sent();
                         console.error(err_1);
-                        return [3, 3];
-                    case 3: return [2];
+                        return [3, 4];
+                    case 4: return [2];
                 }
             });
         });
     };
-    ElasticAdaptor.prototype.startCycle = function () {
+    NewRelicAdaptor.prototype.startCycle = function () {
         this.interval = setInterval(this.postQueue.bind(this), this.config.bulkCycle || 1000);
     };
-    ElasticAdaptor.prototype.stopCycle = function () {
+    NewRelicAdaptor.prototype.stopCycle = function () {
         if (this.interval !== undefined)
             clearInterval(this.interval);
         this.interval = undefined;
     };
-    return ElasticAdaptor;
+    return NewRelicAdaptor;
 }());
-exports.ElasticAdaptor = ElasticAdaptor;
+exports.NewRelicAdaptor = NewRelicAdaptor;
