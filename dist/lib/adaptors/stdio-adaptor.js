@@ -8,7 +8,7 @@ var chalk_1 = __importDefault(require("chalk"));
 var __1 = require("..");
 var process_1 = require("process");
 var logLevelColors = [
-    { foreground: chalk_1["default"].white, background: chalk_1["default"].black.bgMagenta },
+    { foreground: chalk_1["default"].magenta, background: chalk_1["default"].black.bgMagenta },
     { foreground: chalk_1["default"].white, background: chalk_1["default"].black.bgWhite },
     { foreground: chalk_1["default"].blue, background: chalk_1["default"].black.bgBlue },
     { foreground: chalk_1["default"].yellow, background: chalk_1["default"].black.bgYellow },

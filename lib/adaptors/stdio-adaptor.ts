@@ -8,7 +8,7 @@ import { Adaptor, Log, LogLevel } from '..'
 import { stderr, stdout } from 'process'
 
 const logLevelColors = [
-  { foreground: chalk.white, background: chalk.black.bgMagenta },
+  { foreground: chalk.magenta, background: chalk.black.bgMagenta },
   { foreground: chalk.white, background: chalk.black.bgWhite },
   { foreground: chalk.blue, background: chalk.black.bgBlue },
   { foreground: chalk.yellow, background: chalk.black.bgYellow },

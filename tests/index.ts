@@ -7,7 +7,7 @@ import { Log, LogContext, LogLevel, StdioAdaptor } from '../lib'
 // this is not a 'proper' test script at this stage, as it does not handle pass/failure cases;
 // it is just here to provide test logging output for inspection
 
-const log = new Log(LogLevel.Trace)
+const log = new Log('test', LogLevel.Trace)
 log.use(new StdioAdaptor())
 
 const messages: [LogContext, LogContext?][] = [
