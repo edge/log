@@ -41,6 +41,10 @@ export class ElasticAdaptor implements Adaptor {
     if (this.config.bulkCycle !== false) this.startCycle()
   }
 
+  trace(log: Log, message: string, context?: Record<string, unknown>): void {
+    this.log(log, 'trace', message, context)
+  }
+
   debug(log: Log, message: string, context?: Record<string, unknown>): void {
     this.log(log, 'debug', message, context)
   }

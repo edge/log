@@ -15,11 +15,12 @@ export type Adaptor = {
   info: (log: Log, message: string, context?: Record<string, unknown>) => void
   warn: (log: Log, message: string, context?: Record<string, unknown>) => void
   error: (log: Log, message: string, context?: Record<string, unknown>) => void
+  trace: (log: Log, message: string, context?: Record<string, unknown>) => void
 }
 
 export type LogContext = Record<string, unknown> | Error | Date | boolean | null | number | string
 
-export enum LogLevel { Debug, Info, Warn, Error }
+export enum LogLevel { Trace, Debug, Info, Warn, Error }
 
 export type SerializedLogContext = Record<string, unknown> | boolean | null | number | string
 
@@ -31,7 +32,8 @@ export type ServiceInfo = {
 
 export function LogLevelFromString(level: string): LogLevel {
   const levelLower = level.toLowerCase()
-  if (levelLower === 'debug') return LogLevel.Debug
+  if (levelLower === 'trace') return LogLevel.Trace
+  else if (levelLower === 'debug') return LogLevel.Debug
   else if (levelLower === 'info') return LogLevel.Info
   else if (levelLower === 'warn') return LogLevel.Warn
   else if (levelLower === 'error') return LogLevel.Error
@@ -154,6 +156,15 @@ export class Log {
 
   setLogLevel(level: LogLevel): void {
     this.level = level
+  }
+
+  trace(message: string): void
+  trace(context: LogContext): void
+  trace(message: string, context?: LogContext): void
+  trace(message: LogContext, context?: LogContext): void {
+    if (this.level > LogLevel.Debug) return
+    const [fwdMessage, fwdContext] = disambiguate(message, context)
+    this.adaptors.forEach(adaptor => adaptor.trace(this, fwdMessage, this.mergeContexts(fwdContext)))
   }
 
   debug(message: string): void

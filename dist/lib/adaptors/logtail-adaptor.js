@@ -19,6 +19,9 @@ var LogtailAdaptor = (function () {
         this.logtail = new node_1.Logtail(logtailSourceToken);
         this.enableNameInjection = enableNameInjection;
     }
+    LogtailAdaptor.prototype.trace = function (log, message, context) {
+        this.logtail.debug(this.format(message, log.name), this.injectNameIntoContext(log, context));
+    };
     LogtailAdaptor.prototype.debug = function (log, message, context) {
         this.logtail.debug(this.format(message, log.name), this.injectNameIntoContext(log, context));
     };

@@ -75,6 +75,9 @@ var NewRelicAdaptor = (function () {
         if (this.config.bulkCycle !== false)
             this.startCycle();
     }
+    NewRelicAdaptor.prototype.trace = function (log, message, context) {
+        this.log(log, 'trace', message, context);
+    };
     NewRelicAdaptor.prototype.debug = function (log, message, context) {
         this.log(log, 'debug', message, context);
     };

@@ -64,6 +64,9 @@ var ElasticAdaptor = (function () {
         if (this.config.bulkCycle !== false)
             this.startCycle();
     }
+    ElasticAdaptor.prototype.trace = function (log, message, context) {
+        this.log(log, 'trace', message, context);
+    };
     ElasticAdaptor.prototype.debug = function (log, message, context) {
         this.log(log, 'debug', message, context);
     };

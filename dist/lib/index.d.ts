@@ -9,13 +9,15 @@ export declare type Adaptor = {
     info: (log: Log, message: string, context?: Record<string, unknown>) => void;
     warn: (log: Log, message: string, context?: Record<string, unknown>) => void;
     error: (log: Log, message: string, context?: Record<string, unknown>) => void;
+    trace: (log: Log, message: string, context?: Record<string, unknown>) => void;
 };
 export declare type LogContext = Record<string, unknown> | Error | Date | boolean | null | number | string;
 export declare enum LogLevel {
-    Debug = 0,
-    Info = 1,
-    Warn = 2,
-    Error = 3
+    Trace = 0,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4
 }
 export declare type SerializedLogContext = Record<string, unknown> | boolean | null | number | string;
 export declare type ServiceInfo = {
@@ -46,6 +48,9 @@ export declare class Log {
     constructor(adaptors?: Adaptor[], name?: string, level?: LogLevel, context?: Record<string, unknown>);
     use(adaptor: Adaptor): void;
     setLogLevel(level: LogLevel): void;
+    trace(message: string): void;
+    trace(context: LogContext): void;
+    trace(message: string, context?: LogContext): void;
     debug(message: string): void;
     debug(context: LogContext): void;
     debug(message: string, context?: LogContext): void;

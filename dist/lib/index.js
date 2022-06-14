@@ -29,14 +29,17 @@ var stdio_adaptor_1 = require("./adaptors/stdio-adaptor");
 __createBinding(exports, stdio_adaptor_1, "StdioAdaptor");
 var LogLevel;
 (function (LogLevel) {
-    LogLevel[LogLevel["Debug"] = 0] = "Debug";
-    LogLevel[LogLevel["Info"] = 1] = "Info";
-    LogLevel[LogLevel["Warn"] = 2] = "Warn";
-    LogLevel[LogLevel["Error"] = 3] = "Error";
+    LogLevel[LogLevel["Trace"] = 0] = "Trace";
+    LogLevel[LogLevel["Debug"] = 1] = "Debug";
+    LogLevel[LogLevel["Info"] = 2] = "Info";
+    LogLevel[LogLevel["Warn"] = 3] = "Warn";
+    LogLevel[LogLevel["Error"] = 4] = "Error";
 })(LogLevel = exports.LogLevel || (exports.LogLevel = {}));
 function LogLevelFromString(level) {
     var levelLower = level.toLowerCase();
-    if (levelLower === 'debug')
+    if (levelLower === 'trace')
+        return LogLevel.Trace;
+    else if (levelLower === 'debug')
         return LogLevel.Debug;
     else if (levelLower === 'info')
         return LogLevel.Info;
@@ -145,6 +148,13 @@ var Log = (function () {
     };
     Log.prototype.setLogLevel = function (level) {
         this.level = level;
+    };
+    Log.prototype.trace = function (message, context) {
+        var _this = this;
+        if (this.level > LogLevel.Debug)
+            return;
+        var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
+        this.adaptors.forEach(function (adaptor) { return adaptor.trace(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
     };
     Log.prototype.debug = function (message, context) {
         var _this = this;

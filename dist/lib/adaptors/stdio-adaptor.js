@@ -8,13 +8,14 @@ var chalk_1 = __importDefault(require("chalk"));
 var __1 = require("..");
 var process_1 = require("process");
 var logLevelColors = [
+    { foreground: chalk_1["default"].white, background: chalk_1["default"].black.bgMagenta },
     { foreground: chalk_1["default"].white, background: chalk_1["default"].black.bgWhite },
     { foreground: chalk_1["default"].blue, background: chalk_1["default"].black.bgBlue },
     { foreground: chalk_1["default"].yellow, background: chalk_1["default"].black.bgYellow },
     { foreground: chalk_1["default"].red, background: chalk_1["default"].black.bgRed }
 ];
 var logLevelAbbrs = [
-    'DBG', 'INF', 'WRN', 'ERR'
+    'TRC', 'DBG', 'INF', 'WRN', 'ERR'
 ];
 var StdioAdaptor = (function () {
     function StdioAdaptor(useStderr) {
@@ -22,6 +23,9 @@ var StdioAdaptor = (function () {
         this.out = process_1.stdout;
         this.errOut = useStderr ? process_1.stderr : process_1.stdout;
     }
+    StdioAdaptor.prototype.trace = function (log, message, context) {
+        this.writeToLog(__1.LogLevel.Trace, message, log.name, context);
+    };
     StdioAdaptor.prototype.debug = function (log, message, context) {
         this.writeToLog(__1.LogLevel.Debug, message, log.name, context);
     };

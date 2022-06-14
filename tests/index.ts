@@ -2,12 +2,12 @@
 // Use of this source code is governed by a GNU GPL-style license
 // that can be found in the LICENSE.md file. All rights reserved.
 
-import { Log, LogContext, StdioAdaptor } from '../lib'
+import { Log, LogContext, LogLevel, StdioAdaptor } from '../lib'
 
 // this is not a 'proper' test script at this stage, as it does not handle pass/failure cases;
 // it is just here to provide test logging output for inspection
 
-const log = new Log()
+const log = new Log(LogLevel.Trace)
 log.use(new StdioAdaptor())
 
 const messages: [LogContext, LogContext?][] = [
@@ -33,12 +33,14 @@ const messages: [LogContext, LogContext?][] = [
 
 messages.forEach(([msg, ctx]) => {
   if (typeof msg === 'string') {
+    log.trace(msg, ctx)
     log.debug(msg, ctx)
     log.info(msg, ctx)
     log.warn(msg, ctx)
     log.error(msg, ctx)
   }
   else {
+    log.trace(msg)
     log.debug(msg)
     log.info(msg)
     log.warn(msg)

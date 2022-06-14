@@ -15,6 +15,11 @@ export class LogtailAdaptor implements Adaptor {
     this.enableNameInjection = enableNameInjection
   }
 
+  trace(log: Log, message: string, context?: Record<string, unknown>): void {
+    // no trace method - alias to debug
+    this.logtail.debug(this.format(message, log.name), this.injectNameIntoContext(log, context))
+  }
+
   debug(log: Log, message: string, context?: Record<string, unknown>): void {
     this.logtail.debug(this.format(message, log.name), this.injectNameIntoContext(log, context))
   }

@@ -3,6 +3,7 @@ export declare class LogtailAdaptor implements Adaptor {
     private logtail;
     private enableNameInjection;
     constructor(logtailSourceToken: string, enableNameInjection?: boolean);
+    trace(log: Log, message: string, context?: Record<string, unknown>): void;
     debug(log: Log, message: string, context?: Record<string, unknown>): void;
     info(log: Log, message: string, context?: Record<string, unknown>): void;
     warn(log: Log, message: string, context?: Record<string, unknown>): void;

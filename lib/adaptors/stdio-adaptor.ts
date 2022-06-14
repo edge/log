@@ -8,6 +8,7 @@ import { Adaptor, Log, LogLevel } from '..'
 import { stderr, stdout } from 'process'
 
 const logLevelColors = [
+  { foreground: chalk.white, background: chalk.black.bgMagenta },
   { foreground: chalk.white, background: chalk.black.bgWhite },
   { foreground: chalk.blue, background: chalk.black.bgBlue },
   { foreground: chalk.yellow, background: chalk.black.bgYellow },
@@ -15,7 +16,7 @@ const logLevelColors = [
 ]
 
 const logLevelAbbrs = [
-  'DBG', 'INF', 'WRN', 'ERR'
+  'TRC', 'DBG', 'INF', 'WRN', 'ERR'
 ]
 
 export class StdioAdaptor implements Adaptor {
@@ -25,6 +26,10 @@ export class StdioAdaptor implements Adaptor {
   constructor(useStderr = false) {
     this.out = stdout
     this.errOut = useStderr ? stderr : stdout
+  }
+
+  trace(log: Log, message: string, context?: Record<string, unknown>): void {
+    this.writeToLog(LogLevel.Trace, message, log.name, context)
   }
 
   debug(log: Log, message: string, context?: Record<string, unknown>): void {
