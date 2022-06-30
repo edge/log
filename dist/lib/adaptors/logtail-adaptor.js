@@ -40,7 +40,7 @@ var LogtailAdaptor = (function () {
             : context;
     };
     LogtailAdaptor.prototype.format = function (message, name) {
-        return name ? "[" + name + "] " + message : message;
+        return name ? "[".concat(name, "] ").concat(message) : message;
     };
     return LogtailAdaptor;
 }());

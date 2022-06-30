@@ -49,13 +49,13 @@ var StdioAdaptor = (function () {
         var m = d.getMinutes().toString().padStart(2, '0');
         var s = d.getSeconds().toString().padStart(2, '0');
         var ms = d.getMilliseconds().toString().padStart(3, '0');
-        return h + ":" + m + ":" + s + "." + ms;
+        return "".concat(h, ":").concat(m, ":").concat(s, ".").concat(ms);
     };
     StdioAdaptor.prototype.writeToLog = function (level, message, name, context) {
         var timestamp = chalk_1["default"].gray(this.humanTimestamp(new Date()));
         var colors = logLevelColors[level];
-        var levelText = colors.background(" " + logLevelAbbrs[level] + " ");
-        var nameText = name ? colors.foreground("[" + name + "]") : '';
+        var levelText = colors.background(" ".concat(logLevelAbbrs[level], " "));
+        var nameText = name ? colors.foreground("[".concat(name, "]")) : '';
         var messageText = chalk_1["default"].white(message);
         var contextText = '';
         if (this.isError(context))

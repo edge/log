@@ -162,7 +162,7 @@ export class Log {
   trace(context: LogContext): void
   trace(message: string, context?: LogContext): void
   trace(message: LogContext, context?: LogContext): void {
-    if (this.level > LogLevel.Debug) return
+    if (this.level > LogLevel.Trace) return
     const [fwdMessage, fwdContext] = disambiguate(message, context)
     this.adaptors.forEach(adaptor => adaptor.trace(this, fwdMessage, this.mergeContexts(fwdContext)))
   }

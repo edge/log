@@ -106,14 +106,14 @@ var ElasticAdaptor = (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 2, , 3]);
-                        url = this.config.host + "/" + this.config.dataStream + "/" + endpoint;
+                        url = "".concat(this.config.host, "/").concat(this.config.dataStream, "/").concat(endpoint);
                         req = endpoint === '_bulk' ? superagent_1["default"].put(url) : superagent_1["default"].post(url);
                         req.timeout(this.config.timeout || 5000).set('Content-Type', 'application/json').send(data);
                         if (this.config.apiKey)
-                            req.set('Authorization', "apikey " + this.config.apiKey);
+                            req.set('Authorization', "apikey ".concat(this.config.apiKey));
                         else {
-                            auth = Buffer.from(this.config.username + ":" + this.config.password, 'utf-8').toString('base64');
-                            req.set('Authorization', "basic " + auth);
+                            auth = Buffer.from("".concat(this.config.username, ":").concat(this.config.password), 'utf-8').toString('base64');
+                            req.set('Authorization', "basic ".concat(auth));
                         }
                         if (this.config.cert)
                             req.ca(this.config.cert);

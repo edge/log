@@ -12,7 +12,11 @@ var __assign = (this && this.__assign) || function () {
 };
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -55,9 +59,9 @@ function disambiguate(message, context) {
     if (typeof message === 'string')
         return [message, serialize(context)];
     if (typeof message === 'number')
-        return ["" + message, serialize(context)];
+        return ["".concat(message), serialize(context)];
     if (typeof message === 'boolean')
-        return ["" + message, serialize(context)];
+        return ["".concat(message), serialize(context)];
     if (message === null)
         return ['null', serialize(context)];
     if (message instanceof Date)
@@ -151,7 +155,7 @@ var Log = (function () {
     };
     Log.prototype.trace = function (message, context) {
         var _this = this;
-        if (this.level > LogLevel.Debug)
+        if (this.level > LogLevel.Trace)
             return;
         var _a = disambiguate(message, context), fwdMessage = _a[0], fwdContext = _a[1];
         this.adaptors.forEach(function (adaptor) { return adaptor.trace(_this, fwdMessage, _this.mergeContexts(fwdContext)); });
